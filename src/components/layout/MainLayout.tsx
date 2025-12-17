@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { AppSidebar } from './AppSidebar';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 
