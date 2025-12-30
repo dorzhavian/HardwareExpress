@@ -49,13 +49,23 @@ export default function MyOrders() {
 
   useEffect(() => {
     const fetchOrders = async () => {
+      if (!user?.id && !isManager) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
+        setIsLoading(true);
         // Managers see all orders, employees see only their own
         const data = isManager 
           ? await ordersApi.getAll() 
           : await ordersApi.getByUserId(user?.id || '');
         setOrders(data);
         setFilteredOrders(data);
+      } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        setOrders([]);
+        setFilteredOrders([]);
       } finally {
         setIsLoading(false);
       }
@@ -147,7 +157,7 @@ export default function MyOrders() {
                             <CardTitle className="text-lg">{order.id}</CardTitle>
                             <CardDescription>
                               {isManager && `${order.userName} • `}
-                              {order.department} • {format(new Date(order.createdAt), 'MMM d, yyyy')}
+                              {order.department || 'N/A'} • {format(new Date(order.createdAt), 'MMM d, yyyy')}
                             </CardDescription>
                           </div>
                         </div>

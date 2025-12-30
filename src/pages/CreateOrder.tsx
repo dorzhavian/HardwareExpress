@@ -46,13 +46,15 @@ export default function CreateOrder() {
     setIsSubmitting(true);
 
     try {
+      // Transform cart items to API format
+      const orderItems = items.map(item => ({
+        equipmentId: item.equipmentId,
+        quantity: item.quantity,
+      }));
+
       await ordersApi.create({
         userId: user?.id || '',
-        userName: user?.name || '',
-        department: user?.department || '',
-        items,
-        totalAmount,
-        status: 'pending',
+        items: orderItems,
         justification,
       });
 
@@ -248,7 +250,7 @@ export default function CreateOrder() {
 
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <p><strong>Requestor:</strong> {user?.name}</p>
-                  <p><strong>Department:</strong> {user?.department}</p>
+                  <p><strong>Department:</strong> {user?.department || 'N/A'}</p>
                 </div>
               </CardContent>
               <CardFooter>

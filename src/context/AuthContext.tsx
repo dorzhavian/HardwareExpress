@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { User, UserRole } from '@/types';
 import { authApi } from '@/services/api';
+import { getAuthToken } from '@/lib/api-client';
 
 interface AuthContextType {
   user: User | null;
@@ -15,16 +16,49 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start as true to check token on mount
+
+  /**
+   * Check if user is authenticated on mount
+   * 
+   * Decision: Check token on app load
+   * Reason: Restore user session if valid token exists.
+   *         Provides seamless UX across page refreshes.
+   * 
+   * Alternative: Require login on every page refresh
+   * Rejected: Poor UX, users expect to stay logged in.
+   */
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = getAuthToken();
+      if (token) {
+        try {
+          const currentUser = await authApi.getCurrentUser();
+          if (currentUser) {
+            setUser(currentUser);
+          }
+        } catch (error) {
+          // Token is invalid, will be cleared by getCurrentUser
+          console.error('Failed to get current user:', error);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const loggedInUser = await authApi.login(email, password);
-      if (loggedInUser) {
-        setUser(loggedInUser);
+      const response = await authApi.login(email, password);
+      if (response && response.user) {
+        setUser(response.user);
         return true;
       }
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
       return false;
     } finally {
       setIsLoading(false);
@@ -35,8 +69,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await authApi.logout();
-      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
     } finally {
+      setUser(null);
       setIsLoading(false);
     }
   }, []);

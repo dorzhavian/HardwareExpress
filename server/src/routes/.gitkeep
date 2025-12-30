@@ -1,0 +1,5 @@
+# Routes Directory
+# 
+# Express route definitions - organize endpoints by resource.
+# Routes call controllers, which call services.
+

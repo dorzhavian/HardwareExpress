@@ -28,12 +28,18 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const [statsData, ordersData] = await Promise.all([
           dashboardApi.getStats(),
           dashboardApi.getRecentOrders(5),
         ]);
         setStats(statsData);
         setRecentOrders(ordersData);
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+        // Set defaults on error
+        setStats(null);
+        setRecentOrders([]);
       } finally {
         setIsLoading(false);
       }

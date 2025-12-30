@@ -2,13 +2,32 @@ import { useEffect, useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { EquipmentCard } from '@/components/equipment/EquipmentCard';
 import { equipmentApi } from '@/services/api';
-import { Equipment } from '@/types';
-import { equipmentCategories } from '@/services/mockData';
+import { Equipment, ItemCategory } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, SlidersHorizontal, Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+/**
+ * Equipment categories
+ * 
+ * Decision: Hardcoded categories list matching backend enum
+ * Reason: Backend doesn't have a categories endpoint (uses query params).
+ *         Frontend needs this list for filter buttons.
+ * 
+ * Alternative: Fetch categories from backend
+ * Rejected: Backend doesn't have this endpoint. Can be added later if needed.
+ */
+const equipmentCategories: string[] = [
+  'All',
+  'Laptops',
+  'Monitors',
+  'Peripherals',
+  'Printers',
+  'Components',
+  'Storage',
+];
 
 export default function EquipmentPage() {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
@@ -20,37 +39,29 @@ export default function EquipmentPage() {
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
-        const data = await equipmentApi.getAll();
+        setIsLoading(true);
+        // Use API with filters instead of client-side filtering
+        const category = selectedCategory !== 'All' ? selectedCategory : undefined;
+        const search = searchQuery.trim() || undefined;
+        const data = await equipmentApi.getAll(category, search);
         setEquipment(data);
         setFilteredEquipment(data);
+      } catch (error) {
+        console.error('Failed to fetch equipment:', error);
+        setEquipment([]);
+        setFilteredEquipment([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchEquipment();
-  }, []);
+    // Debounce search to avoid too many API calls
+    const timeoutId = setTimeout(() => {
+      fetchEquipment();
+    }, searchQuery ? 300 : 0); // 300ms debounce for search
 
-  useEffect(() => {
-    let filtered = equipment;
-
-    // Filter by category
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(item => item.category === selectedCategory);
-    }
-
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(item =>
-        item.name.toLowerCase().includes(query) ||
-        item.description.toLowerCase().includes(query) ||
-        item.specifications.toLowerCase().includes(query)
-      );
-    }
-
-    setFilteredEquipment(filtered);
-  }, [selectedCategory, searchQuery, equipment]);
+    return () => clearTimeout(timeoutId);
+  }, [selectedCategory, searchQuery]);
 
   return (
     <MainLayout title="Equipment Catalog">

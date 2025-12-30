@@ -1,0 +1,102 @@
+/**
+ * Authentication Service
+ * 
+ * Business logic for authentication operations.
+ * Handles login, token generation, and user retrieval.
+ * 
+ * Decision: Service layer for business logic
+ * Reason: Separates business rules from controllers and repositories.
+ *         Controllers handle HTTP, services handle business logic.
+ * 
+ * Alternative: Business logic in controllers
+ * Rejected: Violates CURSOR_RULES.md requirement: "No business logic inside controllers"
+ */
+
+import { findUserByEmail, findUserById } from '../repositories/user.repository.js';
+import { verifyPassword } from './password.service.js';
+import { generateToken } from './jwt.service.js';
+import { UserResponse } from '../types/api.js';
+import { UserRow } from '../types/database.js';
+
+/**
+ * Transform database user row to API response
+ * Removes password_hash and converts field names
+ * 
+ * Decision: Transform in service layer
+ * Reason: Keeps database types separate from API types.
+ *         Single transformation point for user data.
+ * 
+ * Alternative: Transform in repository or controller
+ * Rejected: Repository should return raw database types.
+ *           Controller should only handle HTTP concerns.
+ */
+function transformUserToResponse(user: UserRow): UserResponse {
+  return {
+    id: user.user_id,
+    email: user.email,
+    name: user.full_name,
+    role: user.role,
+    department: user.department,
+    createdAt: user.created_at,
+  };
+}
+
+/**
+ * Authenticate user with email and password
+ * 
+ * Decision: Return user object with token, not just token
+ * Reason: Frontend needs user data immediately after login.
+ *         Avoids extra API call to get user details.
+ * 
+ * Alternative: Return only token, require separate /me call
+ * Rejected: Extra round trip, worse UX, unnecessary complexity.
+ * 
+ * @param email - User email
+ * @param password - Plain text password
+ * @returns User response with token, or null if invalid credentials
+ */
+export async function login(
+  email: string,
+  password: string
+): Promise<{ user: UserResponse; token: string } | null> {
+  // Find user by email
+  const user = await findUserByEmail(email);
+  if (!user) {
+    // Don't reveal if email exists (security best practice)
+    return null;
+  }
+
+  // Verify password
+  const isValid = await verifyPassword(password, user.password_hash);
+  if (!isValid) {
+    return null;
+  }
+
+  // Generate JWT token
+  const token = generateToken({
+    user_id: user.user_id,
+    role: user.role,
+  });
+
+  // Return user (without password_hash) and token
+  return {
+    user: transformUserToResponse(user),
+    token,
+  };
+}
+
+/**
+ * Get user by ID (for /api/auth/me endpoint)
+ * 
+ * @param userId - User UUID
+ * @returns User response or null if not found
+ */
+export async function getCurrentUser(userId: string): Promise<UserResponse | null> {
+  const user = await findUserById(userId);
+  if (!user) {
+    return null;
+  }
+
+  return transformUserToResponse(user);
+}
+

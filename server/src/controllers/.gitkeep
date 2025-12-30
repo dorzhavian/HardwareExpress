@@ -1,0 +1,5 @@
+# Controllers Directory
+# 
+# Request/response handling only - no business logic.
+# Calls services for business operations.
+

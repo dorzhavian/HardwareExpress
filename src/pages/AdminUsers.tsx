@@ -68,9 +68,14 @@ export default function AdminUsers() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        setIsLoading(true);
         const data = await usersApi.getAll();
         setUsers(data);
         setFilteredUsers(data);
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+        setUsers([]);
+        setFilteredUsers([]);
       } finally {
         setIsLoading(false);
       }
@@ -85,7 +90,7 @@ export default function AdminUsers() {
       setFilteredUsers(users.filter(user =>
         user.name.toLowerCase().includes(query) ||
         user.email.toLowerCase().includes(query) ||
-        user.department.toLowerCase().includes(query)
+        (user.department && user.department.toLowerCase().includes(query))
       ));
     } else {
       setFilteredUsers(users);
@@ -293,7 +298,7 @@ export default function AdminUsers() {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-muted-foreground">{user.department}</TableCell>
+                        <TableCell className="text-muted-foreground">{user.department || 'N/A'}</TableCell>
                         <TableCell>
                           <Badge 
                             variant="outline" 

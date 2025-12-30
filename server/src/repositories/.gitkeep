@@ -1,0 +1,5 @@
+# Repositories Directory
+# 
+# Database access layer - contains only database queries.
+# No business logic, only CRUD operations.
+
