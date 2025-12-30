@@ -2,7 +2,7 @@
 
 ## Environment Variables
 
-Create a `.env` file in the project root (same level as `package.json`) with:
+Create a `.env` file in the `client` directory (same level as `package.json`) with:
 
 ```env
 # Backend API URL
@@ -21,6 +21,7 @@ VITE_API_URL=http://localhost:3000/api
 
 2. **Start frontend:**
    ```bash
+   cd client
    npm install
    npm run dev
    ```

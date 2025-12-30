@@ -31,7 +31,7 @@ import { logCrudEvent, logApprovalEvent, extractIpAddress } from '../services/lo
  * Employees see only their own orders via getOrdersByUserId
  */
 export async function getAllOrdersController(
-  req: AuthenticatedRequest,
+  _req: AuthenticatedRequest,
   res: Response
 ): Promise<void> {
   try {
@@ -222,8 +222,9 @@ export async function updateOrderStatusController(
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> {
+  const { orderId } = req.params;
+  
   try {
-    const { orderId } = req.params;
     const request: UpdateOrderStatusRequest = req.body;
 
     if (!orderId) {

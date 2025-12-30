@@ -184,8 +184,9 @@ export async function updateUserController(
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> {
+  const { userId } = req.params;
+  
   try {
-    const { userId } = req.params;
     const { name, email, password, role, department } = req.body;
 
     if (!userId) {
@@ -280,8 +281,9 @@ export async function deleteUserController(
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> {
+  const { userId } = req.params;
+  
   try {
-    const { userId } = req.params;
 
     if (!userId) {
       res.status(400).json({

@@ -42,3 +42,5 @@ router.get('/:itemId', getEquipmentByIdController);
 
 export default router;
 
+
+

@@ -1,5 +1,0 @@
-# Services Directory
-# 
-# Business logic layer - contains all business rules and transformations.
-# Calls repositories for data access.
-

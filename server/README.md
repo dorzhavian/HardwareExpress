@@ -66,3 +66,5 @@ The backend uses `@supabase/supabase-js` client library for PostgreSQL access.
 - Phase 5: Logging Service
 - Phase 6: Frontend Integration
 
+
+
