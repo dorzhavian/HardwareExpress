@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'procurement_manager', 'employee'] },
   { name: 'Equipment Catalog', href: '/equipment', icon: Monitor, roles: ['admin', 'procurement_manager', 'employee'] },
-  { name: 'Create Order', href: '/create-order', icon: ShoppingCart, roles: ['admin', 'procurement_manager', 'employee'] },
+  { name: 'Shopping Cart', href: '/shopping-cart', icon: ShoppingCart, roles: ['admin', 'procurement_manager', 'employee'] },
   { name: 'My Orders', href: '/my-orders', icon: ClipboardList, roles: ['admin', 'procurement_manager', 'employee'] },
   { name: 'User Management', href: '/admin/users', icon: Users, roles: ['admin'] },
 ];

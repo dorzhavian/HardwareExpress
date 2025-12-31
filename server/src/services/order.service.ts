@@ -43,7 +43,7 @@ function transformOrderItemToResponse(
     equipmentId: orderItem.item_id,
     equipment: equipment,
     quantity: orderItem.quantity,
-    unitPrice: orderItem.price / 100, // Convert cents to dollars
+    unitPrice: orderItem.price , 
   };
 }
 
@@ -95,7 +95,7 @@ async function transformOrderToResponse(
     userName,
     department: department || '',
     items: itemsWithEquipment,
-    totalAmount: order.total_price / 100, // Convert cents to dollars
+    totalAmount: order.total_price , 
     status: order.status || 'pending',
     justification: order.justify_msg || '',
     createdAt: order.created_at || new Date().toISOString(),

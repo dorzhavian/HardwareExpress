@@ -43,7 +43,7 @@ export function transformCatalogItemToResponse(item: CatalogItemRow): EquipmentR
     category: item.category,
     description: item.description || '',
     specifications: item.specification || '', // singular to plural
-    unitPrice: item.price / 100, // Convert cents to dollars
+    unitPrice: item.price, 
     imageUrl: item.image_url || '',
     inStock: item.in_stock ?? true, // Default to true if null
     stockQuantity: item.quantity,

@@ -25,7 +25,7 @@ export function EquipmentCard({ equipment }: EquipmentCardProps) {
   };
 
   return (
-    <Card className="group overflow-hidden shadow-card transition-all hover:shadow-lg animate-scale-in">
+    <Card className="group flex h-full flex-col overflow-hidden shadow-card transition-all hover:shadow-lg animate-scale-in">
       <div className="relative aspect-video overflow-hidden bg-muted">
         <img
           src={equipment.imageUrl}
@@ -44,7 +44,7 @@ export function EquipmentCard({ equipment }: EquipmentCardProps) {
         )}
       </div>
       
-      <CardContent className="p-4">
+      <CardContent className="flex-1 p-4">
         <h3 className="font-semibold text-foreground line-clamp-1">{equipment.name}</h3>
         <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{equipment.description}</p>
         <p className="mt-2 text-xs text-muted-foreground">{equipment.specifications}</p>
@@ -62,7 +62,7 @@ export function EquipmentCard({ equipment }: EquipmentCardProps) {
         </div>
       </CardContent>
       
-      <CardFooter className="p-4 pt-0">
+      <CardFooter className="mt-auto p-4 pt-0">
         <Button
           onClick={handleAddToCart}
           disabled={!equipment.inStock}

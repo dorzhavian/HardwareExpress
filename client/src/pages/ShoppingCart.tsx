@@ -11,10 +11,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { ShoppingCart, Trash2, Plus, Minus, Send, Package, ArrowRight } from 'lucide-react';
+import { ShoppingCart as ShoppingCartIcon, Trash2, Plus, Minus, Send, Package, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export default function CreateOrder() {
+export default function ShoppingCart() {
   const { items, removeItem, updateQuantity, clearCart, totalAmount } = useCart();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -78,11 +78,11 @@ export default function CreateOrder() {
 
   if (items.length === 0) {
     return (
-      <MainLayout title="Create Order">
+      <MainLayout title="Shopping Cart">
         <Card className="shadow-card">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <div className="rounded-full bg-muted p-6 mb-4">
-              <ShoppingCart className="h-12 w-12 text-muted-foreground" />
+              <ShoppingCartIcon className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold text-foreground">Your cart is empty</h3>
             <p className="text-muted-foreground mt-2 max-w-sm">
@@ -101,7 +101,7 @@ export default function CreateOrder() {
   }
 
   return (
-    <MainLayout title="Create Order">
+    <MainLayout title="Shopping Cart">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Order Items */}
@@ -109,7 +109,7 @@ export default function CreateOrder() {
             <Card className="shadow-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5 text-primary" />
+                  <ShoppingCartIcon className="h-5 w-5 text-primary" />
                   Order Items
                 </CardTitle>
                 <CardDescription>

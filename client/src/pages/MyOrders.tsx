@@ -154,10 +154,10 @@ export default function MyOrders() {
                         <div className="flex items-center gap-4">
                           {statusIcons[order.status]}
                           <div>
-                            <CardTitle className="text-lg">{order.id}</CardTitle>
+                            <CardTitle className="text-lg">{order.userName } • {order.department || 'N/A'}</CardTitle>
                             <CardDescription>
-                              {isManager && `${order.userName} • `}
-                              {order.department || 'N/A'} • {format(new Date(order.createdAt), 'MMM d, yyyy')}
+                              {isManager && `Order ID: ${order.id} • `}
+                              {format(new Date(order.createdAt), 'MMM d, yyyy')}
                             </CardDescription>
                           </div>
                         </div>

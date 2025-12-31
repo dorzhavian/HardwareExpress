@@ -155,7 +155,7 @@ export default function Dashboard() {
                   >
                     <div className="space-y-1">
                       <p className="text-sm font-medium text-foreground">
-                        {order.id}
+                        {order.userName } • {order.department || 'N/A'}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {order.items.length} item(s) • {format(new Date(order.createdAt), 'MMM d, yyyy')}
@@ -190,11 +190,11 @@ export default function Dashboard() {
                   </span>
                 </Button>
               </Link>
-              <Link to="/create-order">
+              <Link to="/shopping-cart">
                 <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-start gap-2">
-                  <span className="font-semibold">Create New Order</span>
+                  <span className="font-semibold">Shopping Cart</span>
                   <span className="text-xs text-muted-foreground text-left">
-                    Submit a new equipment request
+                    Review items before submitting your order
                   </span>
                 </Button>
               </Link>

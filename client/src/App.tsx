@@ -8,7 +8,7 @@ import { CartProvider } from "@/context/CartContext";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Equipment from "./pages/Equipment";
-import CreateOrder from "./pages/CreateOrder";
+import ShoppingCart from "./pages/ShoppingCart";
 import MyOrders from "./pages/MyOrders";
 import AdminUsers from "./pages/AdminUsers";
 import NotFound from "./pages/NotFound";
@@ -28,7 +28,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/equipment" element={<Equipment />} />
-              <Route path="/create-order" element={<CreateOrder />} />
+              <Route path="/shopping-cart" element={<ShoppingCart />} />
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="*" element={<NotFound />} />

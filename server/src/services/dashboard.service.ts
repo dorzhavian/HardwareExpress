@@ -45,7 +45,7 @@ export async function getDashboardStats(): Promise<DashboardStatsResponse> {
     .filter((o) => o.status === 'approved' || o.status === 'completed')
     .reduce((sum, order) => sum + order.total_price, 0);
   
-  const totalSpent = totalSpentCents / 100; // Convert cents to dollars
+  const totalSpent = totalSpentCents; 
 
   // Hardcoded monthly budget (can be made configurable later)
   const monthlyBudget = 200000.0;

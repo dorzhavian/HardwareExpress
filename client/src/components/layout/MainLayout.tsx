@@ -33,7 +33,7 @@ export function MainLayout({ children, title }: MainLayoutProps) {
           
           <div className="flex items-center gap-4">
             <Link 
-              to="/create-order" 
+              to="/shopping-cart" 
               className="relative flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ShoppingCart className="h-5 w-5" />
