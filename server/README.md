@@ -68,3 +68,4 @@ The backend uses `@supabase/supabase-js` client library for PostgreSQL access.
 
 
 
+

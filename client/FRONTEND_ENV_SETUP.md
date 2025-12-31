@@ -42,3 +42,4 @@ VITE_API_URL=https://api.yourdomain.com/api
 - Never put sensitive data (like API keys) in frontend environment variables
 - The API URL defaults to `http://localhost:3000/api` if not set
 
+
