@@ -4,6 +4,7 @@ import {
   ShoppingCart, 
   ClipboardList, 
   Users, 
+  FileText,
   LogOut,
   GraduationCap
 } from 'lucide-react';
@@ -19,6 +20,7 @@ const navigation = [
   { name: 'Shopping Cart', href: '/shopping-cart', icon: ShoppingCart, roles: ['admin', 'procurement_manager', 'employee'] },
   { name: 'My Orders', href: '/my-orders', icon: ClipboardList, roles: ['admin', 'procurement_manager', 'employee'] },
   { name: 'User Management', href: '/admin/users', icon: Users, roles: ['admin'] },
+  { name: 'Logs', href: '/admin/logs', icon: FileText, roles: ['admin'] },
 ];
 
 export function AppSidebar() {

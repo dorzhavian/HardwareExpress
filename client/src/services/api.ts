@@ -15,7 +15,7 @@
  */
 
 import { apiGet, apiPost, apiPatch, apiDelete, setAuthToken, removeAuthToken } from '@/lib/api-client';
-import { User, Equipment, Order, DashboardStats, OrderStatus } from '@/types';
+import { User, Equipment, Order, DashboardStats, OrderStatus, PaginatedLogs } from '@/types';
 
 /**
  * Map backend OrderStatus to frontend OrderStatus
@@ -379,5 +379,20 @@ export const dashboardApi = {
   getRecentOrders: async (limit: number = 5): Promise<Order[]> => {
     const orders = await apiGet<Order[]>(`/dashboard/recent-orders?limit=${limit}`);
     return orders.map(transformOrder);
+  },
+};
+
+// Logs API (Admin only)
+export const logsApi = {
+  /**
+   * Get logs with pagination
+   */
+  getPage: async (page: number, pageSize: number = 25): Promise<PaginatedLogs> => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      pageSize: pageSize.toString(),
+    });
+
+    return apiGet<PaginatedLogs>(`/logs?${params.toString()}`);
   },
 };

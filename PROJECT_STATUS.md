@@ -6,6 +6,15 @@ This document tracks the current status and architectural decisions of the Hardw
 
 ## [STATUS UPDATE]
 **Date:** 2026-01-05  
+**Component:** Logs Admin UI + API  
+**Change:** Added admin-only logs endpoint with pagination and frontend logs page  
+**Reason:** Provide efficient log browsing without loading all records in a single request  
+**Impact:** Admins can view audit logs per page; backend returns paginated log data.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-05  
 **Component:** Logging AI Integration  
 **Change:** Python microservice hook added for log analysis and persistence to logs_ai  
 **Reason:** Provide AI scoring/summary per log without mixing Python dependencies in Node  

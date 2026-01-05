@@ -54,6 +54,33 @@ export async function createLog(logData: {
   return data as LogRow;
 }
 
+/**
+ * Get logs with pagination
+ * 
+ * @param offset - Number of records to skip
+ * @param limit - Number of records to fetch
+ * @returns Logs and total count
+ */
+export async function getLogsPage(params: {
+  offset: number;
+  limit: number;
+}): Promise<{ logs: LogRow[]; total: number }> {
+  const { data, error, count } = await database
+    .from('logs')
+    .select('*', { count: 'exact' })
+    .order('timestamp', { ascending: false })
+    .range(params.offset, params.offset + params.limit - 1);
+
+  if (error) {
+    throw new Error(`Failed to fetch logs: ${error.message}`);
+  }
+
+  return {
+    logs: (data || []) as LogRow[],
+    total: count ?? 0,
+  };
+}
+
 
 
 

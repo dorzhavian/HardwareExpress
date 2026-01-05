@@ -14,7 +14,15 @@
  *           violating the constraint that database schema is immutable.
  */
 
-import { UserRole, ItemCategory, OrderStatus } from './database.js';
+import {
+  UserRole,
+  ItemCategory,
+  OrderStatus,
+  LogAction,
+  LogResource,
+  LogStatus,
+  LogSeverity,
+} from './database.js';
 
 /**
  * JWT Payload
@@ -67,6 +75,23 @@ export interface UserResponse {
   role: UserRole;
   department: string | null;
   createdAt: string;
+}
+
+/**
+ * Log Response
+ * Transformed from LogRow
+ */
+export interface LogResponse {
+  id: string;
+  timestamp: string | null;
+  userId: string | null;
+  userRole: UserRole | null;
+  action: LogAction;
+  resource: LogResource;
+  status: LogStatus;
+  ipAddress: string | null;
+  description: string | null;
+  severity: LogSeverity;
 }
 
 /**
@@ -147,4 +172,15 @@ export interface DashboardStatsResponse {
   approvedOrders: number;
   totalSpent: number;
   monthlyBudget: number;
+}
+
+/**
+ * Paginated Logs Response
+ */
+export interface PaginatedLogsResponse {
+  items: LogResponse[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
 }

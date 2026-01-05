@@ -81,6 +81,38 @@ export interface Order {
   updatedAt: string;
 }
 
+export type LogAction = 'login' | 'logout' | 'create' | 'update' | 'delete' | 'approve';
+
+export type LogResource = 'user' | 'order' | 'item' | 'auth';
+
+export type LogStatus = 'success' | 'failure';
+
+export type LogSeverity = 'low' | 'medium' | 'high' | 'critical';
+
+/**
+ * Log entry type matching backend API response
+ */
+export interface LogEntry {
+  id: string;
+  timestamp: string | null;
+  userId: string | null;
+  userRole: UserRole | null;
+  action: LogAction;
+  resource: LogResource;
+  status: LogStatus;
+  ipAddress: string | null;
+  description: string | null;
+  severity: LogSeverity;
+}
+
+export interface PaginatedLogs {
+  items: LogEntry[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
 export interface DashboardStats {
   totalOrders: number;
   pendingOrders: number;
