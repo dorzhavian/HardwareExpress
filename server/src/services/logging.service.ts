@@ -21,6 +21,7 @@
  */
 
 import { createLog } from '../repositories/log.repository.js';
+import { analyzeLogAndStore } from './log-ai.service.js';
 import { LogAction, LogResource, LogStatus, LogSeverity, UserRole } from '../types/database.js';
 
 /**
@@ -144,7 +145,7 @@ export async function logAction(params: {
       params.resource
     );
 
-    await createLog({
+    const createdLog = await createLog({
       user_id: params.user_id,
       user_role: params.user_role,
       action: params.action,
@@ -154,6 +155,8 @@ export async function logAction(params: {
       description: params.description || null,
       severity,
     });
+
+    void analyzeLogAndStore(createdLog);
   } catch (error) {
     // Log to console as fallback if database logging fails
     // This ensures we don't lose critical log information

@@ -11,6 +11,10 @@ lerna-debug.log*
 node_modules/
 client/node_modules/
 server/node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
 
 # Build outputs
 dist/

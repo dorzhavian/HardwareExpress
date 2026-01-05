@@ -129,6 +129,23 @@ export interface LogRow {
   severity: LogSeverity; // log_severity_enum
 }
 
+/**
+ * Logs AI Table
+ * Matches exact database schema from DATABASE_SCHEMA.md (updated)
+ */
+export interface LogAiRow {
+  ai_id: string; // uuid
+  log_id: string; // uuid (FK to logs)
+  model_name: string; // text
+  label: string; // text
+  score: number; // float4
+  threshold: number; // float4
+  is_suspicious: boolean; // boolean
+  ai_summary: string | null; // text (nullable)
+  raw: unknown | null; // jsonb (nullable)
+  created_at: string; // timestamptz
+}
+
 
 
 

@@ -5,6 +5,15 @@ This document tracks the current status and architectural decisions of the Hardw
 ---
 
 ## [STATUS UPDATE]
+**Date:** 2026-01-05  
+**Component:** Logging AI Integration  
+**Change:** Python microservice hook added for log analysis and persistence to logs_ai  
+**Reason:** Provide AI scoring/summary per log without mixing Python dependencies in Node  
+**Impact:** Each log can trigger AI analysis and store results in logs_ai for review.
+
+---
+
+## [STATUS UPDATE]
 **Date:** 2025-01-30  
 **Component:** Backend Infrastructure  
 **Change:** Phase 1 - Backend skeleton and database connection implemented  

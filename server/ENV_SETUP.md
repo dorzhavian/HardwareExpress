@@ -14,6 +14,17 @@ NODE_ENV=development
 # JWT Configuration (Required for Phase 2+)
 JWT_SECRET=your_jwt_secret_key_here
 JWT_EXPIRES_IN=24h
+
+# AI Service Configuration (Node -> Python)
+AI_SERVICE_URL=http://127.0.0.1:8001
+AI_SERVICE_TIMEOUT_MS=2000
+AI_SCORE_THRESHOLD=0.8
+
+# AI Microservice Configuration (Python)
+AI_SERVICE_HOST=127.0.0.1
+AI_SERVICE_PORT=8001
+HF_MODEL_NAME=distilbert-base-uncased-finetuned-sst-2-english
+AI_SUSPICIOUS_LABELS=
 ```
 
 ## Getting Supabase Credentials

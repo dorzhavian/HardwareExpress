@@ -6,6 +6,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "ai": "cd ai_service && .\\.venv\\Scripts\\activate && uvicorn log_ai_service:app --host 127.0.0.1 --port 8001 --reload",
+    "dev:all": "concurrently \"npm run dev\" \"npm run ai\"",
     "build": "tsc",
     "start": "node dist/index.js",
     "type-check": "tsc --noEmit"
@@ -24,6 +26,7 @@
     "@types/express": "^4.17.25",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^22.16.5",
+    "concurrently": "^9.2.1",
     "tsx": "^4.7.0",
     "typescript": "^5.8.3"
   }
