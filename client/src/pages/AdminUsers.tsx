@@ -51,11 +51,13 @@ export default function AdminUsers() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
     role: 'employee' as UserRole,
     department: '',
   });
@@ -103,6 +105,7 @@ export default function AdminUsers() {
       setFormData({
         name: user.name,
         email: user.email,
+        password: '',
         role: user.role,
         department: user.department,
       });
@@ -111,6 +114,7 @@ export default function AdminUsers() {
       setFormData({
         name: '',
         email: '',
+        password: '',
         role: 'employee',
         department: '',
       });
@@ -120,26 +124,46 @@ export default function AdminUsers() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (editingUser) {
-      const updated = await usersApi.update(editingUser.id, formData);
-      if (updated) {
-        setUsers(prev => prev.map(u => u.id === editingUser.id ? updated : u));
+
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      if (editingUser) {
+        const updated = await usersApi.update(editingUser.id, {
+          name: formData.name,
+          email: formData.email,
+          role: formData.role,
+          department: formData.department,
+        });
+        if (updated) {
+          setUsers(prev => prev.map(u => u.id === editingUser.id ? updated : u));
+          toast({
+            title: "User updated",
+            description: "User information has been updated successfully.",
+          });
+        }
+      } else {
+        const created = await usersApi.create({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+          department: formData.department,
+        });
+        setUsers(prev => [...prev, created]);
         toast({
-          title: "User updated",
-          description: "User information has been updated successfully.",
+          title: "User created",
+          description: "New user has been added successfully.",
         });
       }
-    } else {
-      const created = await usersApi.create(formData);
-      setUsers(prev => [...prev, created]);
-      toast({
-        title: "User created",
-        description: "New user has been added successfully.",
-      });
+
+      setIsDialogOpen(false);
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    setIsDialogOpen(false);
   };
 
   const handleDelete = async (userId: string) => {
@@ -212,6 +236,19 @@ export default function AdminUsers() {
                       required
                     />
                   </div>
+                  {!editingUser && (
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                        placeholder="Minimum 6 characters"
+                        required
+                      />
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="role">Role</Label>
                     <Select 
@@ -233,7 +270,7 @@ export default function AdminUsers() {
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button type="submit">
+                  <Button type="submit" disabled={isSubmitting}>
                     {editingUser ? 'Save Changes' : 'Create User'}
                   </Button>
                 </DialogFooter>

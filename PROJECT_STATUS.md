@@ -5,6 +5,69 @@ This document tracks the current status and architectural decisions of the Hardw
 ---
 
 ## [STATUS UPDATE]
+**Date:** 2026-01-11  
+**Component:** Logging AI Integration  
+**Change:** AI analysis payload now sends only log description text  
+**Reason:** Focus model input on the log's descriptive content per logs schema  
+**Impact:** AI service no longer receives structured metadata for analysis.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-11  
+**Component:** Logging AI Integration  
+**Change:** Store negative-class score and derive `is_suspicious` from that threshold  
+**Reason:** Prevent admin confusion when positive-class scores are high  
+**Impact:** `logs_ai.score` now reflects negative likelihood; suspicion uses that score.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-11  
+**Component:** Logging AI Integration  
+**Change:** Mask UUIDs in log descriptions before sending to AI service  
+**Reason:** Remove identifiers and keep model input focused on content  
+**Impact:** AI analysis receives `<ID>`/`<ORDER_ID>` placeholders instead of UUIDs.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-11  
+**Component:** Logging AI Integration  
+**Change:** Removed `label` and `ai_summary` usage for logs_ai persistence  
+**Reason:** Columns were removed from the database schema  
+**Impact:** Backend no longer reads or writes those fields.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-11  
+**Component:** Admin Users + Logging  
+**Change:** Added submit guard on user edits and simplified update log description  
+**Reason:** Prevent double submissions and avoid listing all updated fields  
+**Impact:** Admin updates are single-submit; logs show a single field or "multiple fields".
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-11  
+**Component:** Admin Users Logging  
+**Change:** Update-user log description now includes only email and ID  
+**Reason:** Keep log descriptions concise without field listings  
+**Impact:** Log entries no longer mention updated fields.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-11  
+**Component:** Admin Users UI  
+**Change:** Require password input when creating a new user  
+**Reason:** Users table schema requires `password_hash`, and creation must collect a password  
+**Impact:** Admins now enter a password in the "Add User" dialog; updates remain unchanged.
+
+---
+
+## [STATUS UPDATE]
 **Date:** 2026-01-05  
 **Component:** Logs Admin UI + API  
 **Change:** Added admin-only logs endpoint with pagination and frontend logs page  

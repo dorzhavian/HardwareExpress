@@ -120,11 +120,9 @@ Primary Key: log_id
 | ai_id | uuid | NO | gen_random_uuid() |
 | log_id | uuid | NO | |
 | model_name | text | NO | |
-| label | text | NO | |
 | score | float4 | NO | |
 | threshold | float4 | NO | |
 | is_suspicious | boolean | NO | |
-| ai_summary | text | YES | |
 | raw | jsonb | YES | |
 | created_at | timestamptz | NO | now() |
 

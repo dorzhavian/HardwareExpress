@@ -233,7 +233,6 @@ export async function updateUserController(
     }
 
     // Log user update
-    const updatedFields = Object.keys(updates).join(', ');
     await logCrudEvent({
       user_id: req.user?.user_id || null,
       user_role: req.user?.role || null,
@@ -241,7 +240,7 @@ export async function updateUserController(
       resource: 'user',
       status: 'success',
       ip_address: extractIpAddress(req),
-      description: `User updated: ${user.email} (fields: ${updatedFields})`,
+      description: `User updated: ${user.email}`,
       resourceId: user.id,
     });
 

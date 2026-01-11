@@ -181,7 +181,11 @@ export async function createOrderController(
       resource: 'order',
       status: 'success',
       ip_address: extractIpAddress(req),
-      description: `Order created with ${order.items.length} item(s), total: $${order.totalAmount.toLocaleString()}`,
+      // Decision: Include order justification in log description
+      // Reason: AI analysis needs justification context for risk assessment.
+      // Alternative: Log only item count and total.
+      // Rejected: AI service would miss user-provided rationale.
+      description: `Order created with ${order.items.length} item(s), total: $${order.totalAmount.toLocaleString()}, justification: ${order.justification}`,
       resourceId: order.id,
     });
 

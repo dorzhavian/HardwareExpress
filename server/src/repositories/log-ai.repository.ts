@@ -24,11 +24,9 @@ import { LogAiRow } from '../types/database.js';
 export async function createLogAi(logAiData: {
   log_id: string;
   model_name: string;
-  label: string;
   score: number;
   threshold: number;
   is_suspicious: boolean;
-  ai_summary?: string | null;
   raw?: unknown | null;
 }): Promise<LogAiRow> {
   const { data, error } = await database
@@ -36,11 +34,9 @@ export async function createLogAi(logAiData: {
     .insert({
       log_id: logAiData.log_id,
       model_name: logAiData.model_name,
-      label: logAiData.label,
       score: logAiData.score,
       threshold: logAiData.threshold,
       is_suspicious: logAiData.is_suspicious,
-      ai_summary: logAiData.ai_summary ?? null,
       raw: logAiData.raw ?? null,
     })
     .select()

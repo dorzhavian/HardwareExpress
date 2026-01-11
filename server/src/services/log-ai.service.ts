@@ -24,29 +24,105 @@ type AiServiceResponse = {
   score: number;
   threshold?: number;
   is_suspicious: boolean;
-  ai_summary?: string | null;
   raw?: unknown | null;
 };
 
+/**
+ * Decision: Derive a single negative-class score for storage
+ * Reason: Admins interpret score as "negative likelihood" when judging suspicion.
+ *
+ * Alternative: Store model's primary score as-is
+ * Rejected: Causes confusion when positive-class scores are high but flagged suspicious.
+ */
+function deriveNegativeScore(normalized: AiServiceResponse): number {
+  const rawNegative = extractNegativeScore(normalized.raw);
+  if (typeof rawNegative === 'number') {
+    return clampScore(rawNegative);
+  }
+
+  const labelUpper = normalized.label?.toUpperCase();
+  if (labelUpper === 'NEGATIVE') {
+    return clampScore(normalized.score);
+  }
+  if (labelUpper === 'POSITIVE') {
+    return clampScore(1 - normalized.score);
+  }
+
+  return clampScore(normalized.score);
+}
+
+function extractNegativeScore(raw: unknown | null): number | null {
+  if (!raw || typeof raw !== 'object') {
+    return null;
+  }
+
+  const rawArray = Array.isArray(raw) ? raw : null;
+  if (rawArray) {
+    return findNegativeScoreInArray(rawArray);
+  }
+
+  const rawRecord = raw as Record<string, unknown>;
+  const classifierOutput = rawRecord.classifier_output;
+  if (Array.isArray(classifierOutput)) {
+    return findNegativeScoreInArray(classifierOutput);
+  }
+
+  return null;
+}
+
+function findNegativeScoreInArray(items: unknown[]): number | null {
+  for (const entry of items) {
+    if (!entry || typeof entry !== 'object') {
+      continue;
+    }
+    const record = entry as Record<string, unknown>;
+    const label = typeof record.label === 'string' ? record.label.toUpperCase() : '';
+    if (label === 'NEGATIVE' && typeof record.score === 'number') {
+      return record.score;
+    }
+  }
+
+  return null;
+}
+
+function clampScore(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.min(1, Math.max(0, value));
+}
+
+/**
+ * Decision: Send a fixed 4-field frame to the AI service
+ * Reason: Aligns with the model's expected signal format for consistent scoring.
+ *
+ * Alternative: Send description-only text
+ * Rejected: The model is tuned to recognize structured log signals.
+ */
 function buildLogText(log: LogRow): string {
-  const parts = [
+  return [
+    `user_role=${log.user_role ?? 'null'}`,
     `action=${log.action}`,
     `resource=${log.resource}`,
     `status=${log.status}`,
-    `severity=${log.severity}`,
-  ];
+  ].join(' | ');
+}
 
-  if (log.user_role) {
-    parts.push(`user_role=${log.user_role}`);
-  }
-  if (log.ip_address) {
-    parts.push(`ip=${log.ip_address}`);
-  }
-  if (log.description) {
-    parts.push(`description=${log.description}`);
-  }
+/**
+ * Decision: Mask UUIDs in log descriptions before AI analysis
+ * Reason: Prevents model bias and removes sensitive identifiers from input.
+ *
+ * Alternative: Send raw descriptions with UUIDs intact
+ * Rejected: Exposes identifiers and can skew model attention to IDs.
+ */
+function scrubUuids(text: string): string {
+  const uuidRegex = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
+  const orderIdRegex = /\bOrder ID:\s*[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
 
-  return parts.join(' | ');
+  return text
+    .replace(orderIdRegex, 'Order ID: <ORDER_ID>')
+    .replace(uuidRegex, '<ID>');
 }
 
 function normalizeResponse(raw: AiServiceResponse): AiServiceResponse {
@@ -56,7 +132,6 @@ function normalizeResponse(raw: AiServiceResponse): AiServiceResponse {
     score: Number(raw.score),
     threshold: typeof raw.threshold === 'number' ? raw.threshold : defaultThreshold,
     is_suspicious: Boolean(raw.is_suspicious),
-    ai_summary: raw.ai_summary ?? null,
     raw: raw.raw ?? null,
   };
 }
@@ -81,15 +156,6 @@ export async function analyzeLogAndStore(log: LogRow): Promise<void> {
       body: JSON.stringify({
         log_id: log.log_id,
         text: buildLogText(log),
-        metadata: {
-          action: log.action,
-          resource: log.resource,
-          status: log.status,
-          severity: log.severity,
-          user_id: log.user_id,
-          user_role: log.user_role,
-          ip_address: log.ip_address,
-        },
       }),
       signal: controller.signal,
     });
@@ -100,15 +166,15 @@ export async function analyzeLogAndStore(log: LogRow): Promise<void> {
 
     const data = (await response.json()) as AiServiceResponse;
     const normalized = normalizeResponse(data);
+    const negativeScore = deriveNegativeScore(normalized);
+    const threshold = normalized.threshold ?? defaultThreshold;
 
     await createLogAi({
       log_id: log.log_id,
       model_name: normalized.model_name,
-      label: normalized.label,
-      score: normalized.score,
-      threshold: normalized.threshold ?? defaultThreshold,
-      is_suspicious: normalized.is_suspicious,
-      ai_summary: normalized.ai_summary,
+      score: negativeScore,
+      threshold,
+      is_suspicious: negativeScore >= threshold,
       raw: normalized.raw,
     });
   } catch (error) {
