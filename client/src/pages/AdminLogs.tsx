@@ -1,13 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { FileText } from 'lucide-react';
+import { FileText, Filter } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useAuth } from '@/context/AuthContext';
 import { logsApi } from '@/services/api';
 import { LogEntry, LogSeverity, LogStatus } from '@/types';
+import type { LogAction } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   Pagination,
@@ -30,6 +40,10 @@ const severityStyles: Record<LogSeverity, string> = {
   high: 'bg-destructive/10 text-destructive border-destructive/20',
   critical: 'bg-destructive text-destructive-foreground border-destructive',
 };
+
+const ACTION_OPTIONS: LogAction[] = ['login', 'logout', 'create', 'update', 'delete', 'approve'];
+const SEVERITY_OPTIONS: LogSeverity[] = ['low', 'medium', 'high', 'critical'];
+const STATUS_OPTIONS: LogStatus[] = ['success', 'failure'];
 
 const PAGE_SIZE = 25;
 
@@ -64,16 +78,46 @@ export default function AdminLogs() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingFilters, setPendingFilters] = useState<{
+    actions: LogAction[];
+    severities: LogSeverity[];
+    statuses: LogStatus[];
+  }>({
+    actions: [],
+    severities: [],
+    statuses: [],
+  });
+  const [appliedFilters, setAppliedFilters] = useState<{
+    actions: LogAction[];
+    severities: LogSeverity[];
+    statuses: LogStatus[];
+  }>({
+    actions: [],
+    severities: [],
+    statuses: [],
+  });
 
   if (!hasRole('admin')) {
     return <Navigate to="/dashboard" replace />;
   }
 
+  const toggleFilterValue = <T extends string>(values: T[], value: T): T[] =>
+    values.includes(value) ? values.filter((entry) => entry !== value) : [...values, value];
+
+  const applyFilters = () => {
+    setAppliedFilters({
+      actions: [...pendingFilters.actions],
+      severities: [...pendingFilters.severities],
+      statuses: [...pendingFilters.statuses],
+    });
+    setPage(1);
+  };
+
   useEffect(() => {
     const fetchLogs = async () => {
       try {
         setIsLoading(true);
-        const response = await logsApi.getPage(page, PAGE_SIZE);
+        const response = await logsApi.getPage(page, PAGE_SIZE, appliedFilters);
         setLogs(response.items);
         setTotalPages(response.totalPages);
         setTotalCount(response.total);
@@ -88,7 +132,7 @@ export default function AdminLogs() {
     };
 
     fetchLogs();
-  }, [page]);
+  }, [page, appliedFilters]);
 
   useEffect(() => {
     if (totalPages > 0 && page > totalPages) {
@@ -108,9 +152,77 @@ export default function AdminLogs() {
               Review system activity logs with pagination for performance
             </p>
           </div>
-          <Badge variant="secondary">
-            {totalCount} log(s)
-          </Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Filter className="h-4 w-4" />
+                  Filters
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Action</DropdownMenuLabel>
+                {ACTION_OPTIONS.map((option) => (
+                  <DropdownMenuCheckboxItem
+                    key={`action-${option}`}
+                    checked={pendingFilters.actions.includes(option)}
+                    onCheckedChange={() => {
+                      setPendingFilters((current) => ({
+                        ...current,
+                        actions: toggleFilterValue(current.actions, option),
+                      }));
+                    }}
+                    onSelect={(event) => event.preventDefault()}
+                  >
+                    {option}
+                  </DropdownMenuCheckboxItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Severity</DropdownMenuLabel>
+                {SEVERITY_OPTIONS.map((option) => (
+                  <DropdownMenuCheckboxItem
+                    key={`severity-${option}`}
+                    checked={pendingFilters.severities.includes(option)}
+                    onCheckedChange={() => {
+                      setPendingFilters((current) => ({
+                        ...current,
+                        severities: toggleFilterValue(current.severities, option),
+                      }));
+                    }}
+                    onSelect={(event) => event.preventDefault()}
+                  >
+                    {option}
+                  </DropdownMenuCheckboxItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Status</DropdownMenuLabel>
+                {STATUS_OPTIONS.map((option) => (
+                  <DropdownMenuCheckboxItem
+                    key={`status-${option}`}
+                    checked={pendingFilters.statuses.includes(option)}
+                    onCheckedChange={() => {
+                      setPendingFilters((current) => ({
+                        ...current,
+                        statuses: toggleFilterValue(current.statuses, option),
+                      }));
+                    }}
+                    onSelect={(event) => event.preventDefault()}
+                  >
+                    {option}
+                  </DropdownMenuCheckboxItem>
+                ))}
+                <DropdownMenuSeparator />
+                <div className="px-2 py-1.5">
+                  <Button className="w-full" size="sm" onClick={applyFilters}>
+                    Apply Filters
+                  </Button>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Badge variant="secondary">
+              {totalCount} log(s)
+            </Badge>
+          </div>
         </div>
 
         <Card className="shadow-card">
@@ -152,18 +264,21 @@ export default function AdminLogs() {
                 </TableHeader>
                 <TableBody>
                   {logs.map((log) => (
-                    <TableRow key={log.id}>
-                      <TableCell className="text-muted-foreground whitespace-nowrap">
+                    <TableRow
+                      key={log.id}
+                      className={log.aiAlert ? 'bg-destructive/10 border-l-4 border-destructive/40' : undefined}
+                    >
+                      <TableCell className="text-muted-foreground">
                         {log.timestamp ? format(new Date(log.timestamp), 'MMM d, yyyy HH:mm') : 'N/A'}
                       </TableCell>
-                      <TableCell className="max-w-[160px] truncate">
+                      <TableCell className="break-all">
                         {log.userId || 'System'}
                       </TableCell>
-                      <TableCell className="text-muted-foreground capitalize">
+                      <TableCell className="text-muted-foreground capitalize break-words">
                         {log.userRole ? log.userRole.replace('_', ' ') : 'N/A'}
                       </TableCell>
-                      <TableCell className="capitalize">{log.action}</TableCell>
-                      <TableCell className="capitalize">{log.resource}</TableCell>
+                      <TableCell className="capitalize break-words">{log.action}</TableCell>
+                      <TableCell className="capitalize break-words">{log.resource}</TableCell>
                       <TableCell>
                         <Badge variant="outline" className={statusStyles[log.status]}>
                           {log.status}
@@ -174,10 +289,10 @@ export default function AdminLogs() {
                           {log.severity}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground break-words">
                         {log.ipAddress || 'N/A'}
                       </TableCell>
-                      <TableCell className="max-w-[240px] truncate text-muted-foreground">
+                      <TableCell className="text-muted-foreground whitespace-normal break-words">
                         {log.description || 'N/A'}
                       </TableCell>
                     </TableRow>

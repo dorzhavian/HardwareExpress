@@ -92,6 +92,7 @@ export interface LogResponse {
   ipAddress: string | null;
   description: string | null;
   severity: LogSeverity;
+  aiAlert: boolean;
 }
 
 /**

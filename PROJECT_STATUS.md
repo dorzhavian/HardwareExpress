@@ -5,6 +5,42 @@ This document tracks the current status and architectural decisions of the Hardw
 ---
 
 ## [STATUS UPDATE]
+**Date:** 2026-01-19  
+**Component:** Login UI  
+**Change:** Swapped login image import to assets folder, removed the header icon, and reduced image column width  
+**Reason:** Match updated asset location and requested layout hierarchy  
+**Impact:** Login header is text-only; image is narrower and closer to the login card.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-19  
+**Component:** Login UI  
+**Change:** Added a side-by-side login card with an attached image and removed demo account UI  
+**Reason:** Match the requested visual layout and remove demo-only entry points  
+**Impact:** Login page now shows the image next to the form; demo account selection and messaging removed.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-19  
+**Component:** Admin Logs Filtering  
+**Change:** Added multi-select filters (action, severity, status) applied on demand and backed by server-side query filters  
+**Reason:** Allow precise log review without client-side overfetch or immediate filtering side effects  
+**Impact:** Logs endpoint accepts filter query params; UI applies filters only when requested.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-19  
+**Component:** Admin Logs UI + API  
+**Change:** Logs API now joins `logs_ai` to compute `aiAlert`, and the admin logs table renders full fields with red highlight for AI-flagged rows  
+**Reason:** Surface AI anomalies without extra queries and avoid hiding log data  
+**Impact:** Single-query log retrieval; UI shows complete text and visually flags suspicious logs.
+
+---
+
+## [STATUS UPDATE]
 **Date:** 2026-01-11  
 **Component:** Logging AI Integration  
 **Change:** AI analysis payload now sends only log description text  

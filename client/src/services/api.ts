@@ -387,11 +387,23 @@ export const logsApi = {
   /**
    * Get logs with pagination
    */
-  getPage: async (page: number, pageSize: number = 25): Promise<PaginatedLogs> => {
+  getPage: async (
+    page: number,
+    pageSize: number = 25,
+    filters?: {
+      actions?: Array<'login' | 'logout' | 'create' | 'update' | 'delete' | 'approve'>;
+      severities?: Array<'low' | 'medium' | 'high' | 'critical'>;
+      statuses?: Array<'success' | 'failure'>;
+    }
+  ): Promise<PaginatedLogs> => {
     const params = new URLSearchParams({
       page: page.toString(),
       pageSize: pageSize.toString(),
     });
+
+    filters?.actions?.forEach((value) => params.append('action', value));
+    filters?.severities?.forEach((value) => params.append('severity', value));
+    filters?.statuses?.forEach((value) => params.append('status', value));
 
     return apiGet<PaginatedLogs>(`/logs?${params.toString()}`);
   },

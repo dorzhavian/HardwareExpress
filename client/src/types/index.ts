@@ -103,6 +103,7 @@ export interface LogEntry {
   ipAddress: string | null;
   description: string | null;
   severity: LogSeverity;
+  aiAlert: boolean;
 }
 
 export interface PaginatedLogs {

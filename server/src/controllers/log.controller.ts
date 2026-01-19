@@ -18,6 +18,38 @@ import { Response } from 'express';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware.js';
 import { getPaginatedLogs } from '../services/log.service.js';
 
+const LOG_ACTIONS = ['login', 'logout', 'create', 'update', 'delete', 'approve'] as const;
+const LOG_SEVERITIES = ['low', 'medium', 'high', 'critical'] as const;
+const LOG_STATUSES = ['success', 'failure'] as const;
+
+type LogAction = (typeof LOG_ACTIONS)[number];
+type LogSeverity = (typeof LOG_SEVERITIES)[number];
+type LogStatus = (typeof LOG_STATUSES)[number];
+
+function parseFilterParam(value: string | string[] | undefined): string[] {
+  if (!value) {
+    return [];
+  }
+
+  const parts = Array.isArray(value) ? value : [value];
+  return parts
+    .flatMap((entry) => entry.split(','))
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function validateFilter<T extends string>(
+  values: string[],
+  allowed: readonly T[],
+  label: string
+): T[] {
+  const invalid = values.filter((value) => !allowed.includes(value as T));
+  if (invalid.length > 0) {
+    throw new Error(`${label} must be one of: ${allowed.join(', ')}`);
+  }
+  return values as T[];
+}
+
 /**
  * GET /api/logs
  * Get logs (admin only) with pagination
@@ -50,7 +82,31 @@ export async function getLogsController(
       return;
     }
 
-    const result = await getPaginatedLogs(page, pageSize);
+    const actionsRaw = parseFilterParam(req.query.action as string | string[] | undefined);
+    const severitiesRaw = parseFilterParam(req.query.severity as string | string[] | undefined);
+    const statusesRaw = parseFilterParam(req.query.status as string | string[] | undefined);
+
+    let actions: LogAction[] = [];
+    let severities: LogSeverity[] = [];
+    let statuses: LogStatus[] = [];
+
+    try {
+      actions = validateFilter(actionsRaw, LOG_ACTIONS, 'action');
+      severities = validateFilter(severitiesRaw, LOG_SEVERITIES, 'severity');
+      statuses = validateFilter(statusesRaw, LOG_STATUSES, 'status');
+    } catch (validationError) {
+      res.status(400).json({
+        error: 'Bad Request',
+        message: validationError instanceof Error ? validationError.message : 'Invalid filter values',
+      });
+      return;
+    }
+
+    const result = await getPaginatedLogs(page, pageSize, {
+      actions,
+      severities,
+      statuses,
+    });
     res.json(result);
   } catch (error) {
     console.error('Get logs error:', error);
