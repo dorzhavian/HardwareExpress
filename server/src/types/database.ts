@@ -144,6 +144,17 @@ export interface LogAiRow {
   created_at: string; // timestamptz
 }
 
+/**
+ * Logs table with AI score metadata
+ * Used for log list joins (logs + logs_ai scores)
+ */
+export interface LogWithAiRow extends LogRow {
+  logs_ai?: Array<{
+    score: number;
+    threshold: number;
+  }> | null;
+}
+
 
 
 

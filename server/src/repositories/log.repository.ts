@@ -14,7 +14,7 @@
  */
 
 import { database } from '../config/database.js';
-import { LogRow } from '../types/database.js';
+import { LogWithAiRow } from '../types/database.js';
 
 /**
  * Create a log entry
@@ -64,19 +64,50 @@ export async function createLog(logData: {
 export async function getLogsPage(params: {
   offset: number;
   limit: number;
-}): Promise<{ logs: LogRow[]; total: number }> {
-  const { data, error, count } = await database
+  filters?: {
+    actions?: string[];
+    severities?: string[];
+    statuses?: string[];
+  };
+}): Promise<{ logs: LogWithAiRow[]; total: number }> {
+  /**
+   * Decision: Join logs_ai in the same query
+   * Reason: Single round trip with nested results is more efficient
+   *         than per-log lookups for AI scores.
+   * Alternative: Separate query for logs_ai per log
+   * Rejected: N+1 queries and unnecessary latency.
+   */
+  let query = database
     .from('logs')
-    .select('*', { count: 'exact' })
-    .order('timestamp', { ascending: false })
-    .range(params.offset, params.offset + params.limit - 1);
+    .select(
+      'log_id,timestamp,user_id,user_role,action,resource,status,ip_address,description,severity,logs_ai(score,threshold)',
+      { count: 'exact' }
+    )
+    .order('timestamp', { ascending: false });
+
+  if (params.filters?.actions && params.filters.actions.length > 0) {
+    query = query.in('action', params.filters.actions);
+  }
+
+  if (params.filters?.severities && params.filters.severities.length > 0) {
+    query = query.in('severity', params.filters.severities);
+  }
+
+  if (params.filters?.statuses && params.filters.statuses.length > 0) {
+    query = query.in('status', params.filters.statuses);
+  }
+
+  const { data, error, count } = await query.range(
+    params.offset,
+    params.offset + params.limit - 1
+  );
 
   if (error) {
     throw new Error(`Failed to fetch logs: ${error.message}`);
   }
 
   return {
-    logs: (data || []) as LogRow[],
+    logs: (data || []) as LogWithAiRow[],
     total: count ?? 0,
   };
 }

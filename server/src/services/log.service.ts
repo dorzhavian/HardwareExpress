@@ -14,7 +14,7 @@
 
 import { getLogsPage } from '../repositories/log.repository.js';
 import { LogResponse, PaginatedLogsResponse } from '../types/api.js';
-import { LogRow } from '../types/database.js';
+import { LogWithAiRow } from '../types/database.js';
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 100;
@@ -30,7 +30,17 @@ const MAX_PAGE_SIZE = 100;
  * Rejected: Repository should return raw database types.
  *           Controller should only handle HTTP concerns.
  */
-function transformLogToResponse(log: LogRow): LogResponse {
+function transformLogToResponse(log: LogWithAiRow): LogResponse {
+  /**
+   * Decision: Mark alert if any AI score exceeds its threshold
+   * Reason: A single suspicious model result should flag the log for review.
+   * Alternative: Use only the latest model result
+   * Rejected: Requires extra ordering data and can hide earlier high-risk scores.
+   */
+  const aiAlert = Array.isArray(log.logs_ai)
+    ? log.logs_ai.some((entry) => entry.score > entry.threshold)
+    : false;
+
   return {
     id: log.log_id,
     timestamp: log.timestamp,
@@ -42,6 +52,7 @@ function transformLogToResponse(log: LogRow): LogResponse {
     ipAddress: log.ip_address,
     description: log.description,
     severity: log.severity,
+    aiAlert,
   };
 }
 
@@ -54,7 +65,12 @@ function transformLogToResponse(log: LogRow): LogResponse {
  */
 export async function getPaginatedLogs(
   page: number,
-  pageSize: number = DEFAULT_PAGE_SIZE
+  pageSize: number = DEFAULT_PAGE_SIZE,
+  filters?: {
+    actions?: Array<'login' | 'logout' | 'create' | 'update' | 'delete' | 'approve'>;
+    severities?: Array<'low' | 'medium' | 'high' | 'critical'>;
+    statuses?: Array<'success' | 'failure'>;
+  }
 ): Promise<PaginatedLogsResponse> {
   const safePageSize = Math.min(Math.max(pageSize, 1), MAX_PAGE_SIZE);
   const offset = (page - 1) * safePageSize;
@@ -62,6 +78,11 @@ export async function getPaginatedLogs(
   const { logs, total } = await getLogsPage({
     offset,
     limit: safePageSize,
+    filters: {
+      actions: filters?.actions ?? [],
+      severities: filters?.severities ?? [],
+      statuses: filters?.statuses ?? [],
+    },
   });
 
   const totalPages = total === 0 ? 0 : Math.ceil(total / safePageSize);
