@@ -1,14 +1,13 @@
 import { updateLogClassification } from '../repositories/log.repository.js';
 import { LogRow } from '../types/database.js';
 
-const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
+const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8001';
 
 type AiServiceResponse = {
   classification: 'NORMAL' | 'ANOMALOUS';
 };
 
 function buildLogText(log: LogRow): string {
-  // תיקון השגיאה: וידוא שיש ערך, ואם לא - משתמשים בזמן הנוכחי כברירת מחדל
   const timestampValue = log.timestamp || new Date().toISOString();
   const date = new Date(timestampValue);
   const timeString = `${date.getHours()}:${date.getMinutes()}`;

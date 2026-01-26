@@ -11,70 +11,71 @@ Following CURSOR_RULES.md, the backend follows strict separation of concerns:
 - **Repositories**: Database access only
 - **Middlewares**: Authentication, authorization, validation, logging
 
+---
+
 ## Setup
 
-1. Install dependencies:
+### 1. Install Dependencies
+
 ```bash
 cd server
 npm install
 ```
 
-2. Configure environment variables:
-- Create `server/.env` using `server/ENV_SETUP.md`.
-- Set `HF_MODEL_NAME` to your Hugging Face model.
+### 2. Create Environment File
 
-3. Set up the AI microservice (Python):
-```bash
-cd server/ai_service
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -r requirements.txt
+Create a `.env` file in the `server/` directory:
+
+```env
+# ===========================================
+# Supabase Database Configuration
+# ===========================================
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# ===========================================
+# Server Configuration
+# ===========================================
+PORT=3000
+NODE_ENV=development
+
+# ===========================================
+# JWT Configuration
+# ===========================================
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRES_IN=1h
+
+# ===========================================
+# AI Service Configuration (Node -> Python)
+# ===========================================
+AI_SERVICE_URL=http://127.0.0.1:8001
+AI_SERVICE_TIMEOUT_MS=60000
+
+# ===========================================
+# AI Microservice Configuration (Python)
+# ===========================================
+AI_SERVICE_HOST=127.0.0.1
+AI_SERVICE_PORT=8001
 ```
 
-4. Run the backend only:
+### Getting Supabase Credentials
+
+1. Go to your [Supabase Dashboard](https://app.supabase.com)
+2. Select your project
+3. Navigate to **Settings → API**
+4. Copy the values:
+   - **Project URL** → `SUPABASE_URL`
+   - **service_role key** → `SUPABASE_SERVICE_ROLE_KEY`
+
+> ⚠️ **Important**: Use the `service_role` key, NOT the `anon` key. The service role key bypasses Row Level Security (RLS) which is required for backend operations.
+
+### JWT Secret Generation
+
+Generate a secure JWT secret:
+
 ```bash
-npm run dev
+# Using Node.js
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+
+# Or use any random string generator (minimum 32 characters)
 ```
-
-5. Run the AI service only:
-```bash
-npm run ai
-```
-
-6. Run both together:
-```bash
-npm run dev:all
-```
-
-7. Check health endpoints:
-```bash
-curl http://localhost:3000/health
-curl http://127.0.0.1:8001/health
-```
-
-## Environment Variables
-
-- `SUPABASE_URL`: Your Supabase project URL
-- `SUPABASE_SERVICE_ROLE_KEY`: Supabase service role key (bypasses RLS)
-- `PORT`: Server port (default: 3000)
-- `NODE_ENV`: Environment (development/production)
-- `AI_SERVICE_URL`: AI microservice URL (default: http://127.0.0.1:8001)
-- `AI_SERVICE_TIMEOUT_MS`: AI request timeout in milliseconds
-- `AI_SCORE_THRESHOLD`: Score threshold for suspicious classification
-- `AI_SERVICE_HOST`: AI microservice host
-- `AI_SERVICE_PORT`: AI microservice port
-- `HF_MODEL_NAME`: Hugging Face model name or path
-- `AI_SUSPICIOUS_LABELS`: Comma-separated labels treated as suspicious
-
-## Database Connection
-
-The backend uses `@supabase/supabase-js` client library for PostgreSQL access.
-
-**Decision**: Using Supabase client instead of raw `pg` library  
-**Reason**: Built-in connection pooling, retry logic, TypeScript support  
-**Alternative**: `pg` (node-postgres) - rejected due to more boilerplate
-
-## AI Log Analysis
-
-Every log created by the backend is sent to the Python microservice.
-The AI service returns a label/score that is stored in `logs_ai`.

@@ -13,7 +13,6 @@ app = FastAPI(title="Log AI Service", version="4.0.0")
 
 try:
     print(f"Loading model: {MODEL_NAME}...", flush=True)
-    # Token parameter removed
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
