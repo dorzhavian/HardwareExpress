@@ -1,27 +1,6 @@
-/**
- * Log Repository
- * 
- * Database access layer for logs table.
- * Contains only database queries, no business logic.
- * 
- * Decision: Repository pattern for database access
- * Reason: Separates data access from business logic, makes testing easier,
- *         allows swapping database implementations if needed.
- * 
- * Alternative: Direct database calls in logging service
- * Rejected: Violates separation of concerns, makes testing harder,
- *           doesn't follow CURSOR_RULES.md architecture.
- */
-
 import { database } from '../config/database.js';
-import { LogWithAiRow } from '../types/database.js';
+import { LogRow } from '../types/database.js';
 
-/**
- * Create a log entry
- * 
- * @param logData - Log data matching database schema
- * @returns Created log row
- */
 export async function createLog(logData: {
   user_id: string | null;
   user_role: string | null;
@@ -54,13 +33,6 @@ export async function createLog(logData: {
   return data as LogRow;
 }
 
-/**
- * Get logs with pagination
- * 
- * @param offset - Number of records to skip
- * @param limit - Number of records to fetch
- * @returns Logs and total count
- */
 export async function getLogsPage(params: {
   offset: number;
   limit: number;
@@ -69,18 +41,12 @@ export async function getLogsPage(params: {
     severities?: string[];
     statuses?: string[];
   };
-}): Promise<{ logs: LogWithAiRow[]; total: number }> {
-  /**
-   * Decision: Join logs_ai in the same query
-   * Reason: Single round trip with nested results is more efficient
-   *         than per-log lookups for AI scores.
-   * Alternative: Separate query for logs_ai per log
-   * Rejected: N+1 queries and unnecessary latency.
-   */
+}): Promise<{ logs: LogRow[]; total: number }> {
   let query = database
     .from('logs')
     .select(
-      'log_id,timestamp,user_id,user_role,action,resource,status,ip_address,description,severity,logs_ai(score,threshold)',
+      // הסרתי את ai_explanation כי ההסבר נמצא בתוך description
+      'log_id,timestamp,user_id,user_role,action,resource,status,ip_address,description,severity,ai_classification',
       { count: 'exact' }
     )
     .order('timestamp', { ascending: false });
@@ -107,11 +73,31 @@ export async function getLogsPage(params: {
   }
 
   return {
-    logs: (data || []) as LogWithAiRow[],
+    logs: (data || []) as LogRow[],
     total: count ?? 0,
   };
 }
 
+export async function updateLogClassification(
+  log_id: string,
+  classification: 'NORMAL' | 'ANOMALOUS',
+  explanation?: string
+): Promise<void> {
+  // כאן התיקון הקריטי: מעדכנים את description במקום ai_explanation
+  const updateData: { ai_classification: string; description?: string } = {
+    ai_classification: classification,
+  };
 
+  if (explanation !== undefined) {
+    updateData.description = explanation;
+  }
 
+  const { error } = await database
+    .from('logs')
+    .update(updateData)
+    .eq('log_id', log_id);
 
+  if (error) {
+    throw new Error(`Failed to update log classification: ${error.message}`);
+  }
+}

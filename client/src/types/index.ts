@@ -89,21 +89,23 @@ export type LogStatus = 'success' | 'failure';
 
 export type LogSeverity = 'low' | 'medium' | 'high' | 'critical';
 
+export type AiClassification = 'NORMAL' | 'ANOMALOUS' | 'PENDING';
+
 /**
  * Log entry type matching backend API response
  */
 export interface LogEntry {
   id: string;
   timestamp: string | null;
-  userId: string | null;
-  userRole: UserRole | null;
+  user_id: string | null;
+  user_role: UserRole | null;
   action: LogAction;
   resource: LogResource;
   status: LogStatus;
-  ipAddress: string | null;
+  ip_address: string | null;
   description: string | null;
   severity: LogSeverity;
-  aiAlert: boolean;
+  ai_classification: AiClassification;
 }
 
 export interface PaginatedLogs {

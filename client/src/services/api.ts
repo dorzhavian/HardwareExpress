@@ -15,7 +15,7 @@
  */
 
 import { apiGet, apiPost, apiPatch, apiDelete, setAuthToken, removeAuthToken } from '@/lib/api-client';
-import { User, Equipment, Order, DashboardStats, OrderStatus, PaginatedLogs } from '@/types';
+import { User, Equipment, Order, DashboardStats, OrderStatus, PaginatedLogs, LogEntry } from '@/types';
 
 /**
  * Map backend OrderStatus to frontend OrderStatus
@@ -62,6 +62,27 @@ function transformOrder(backendOrder: any): Order {
   return {
     ...backendOrder,
     status: mapOrderStatus(backendOrder.status),
+  };
+}
+
+/**
+ * Transform backend log (snake_case) into frontend LogEntry (camelCase)
+ */
+function transformLogEntry(backendLog: any): LogEntry {
+  const classification = (backendLog.ai_classification || backendLog.aiClassification || 'PENDING') as LogEntry['ai_classification'];
+
+  return {
+    id: backendLog.id ?? backendLog.log_id ?? backendLog.logId ?? '',
+    timestamp: backendLog.timestamp ?? backendLog.created_at ?? null,
+    user_id: backendLog.user_id ?? backendLog.userId ?? null,
+    user_role: backendLog.user_role ?? backendLog.userRole ?? null,
+    action: backendLog.action,
+    resource: backendLog.resource,
+    status: backendLog.status,
+    ip_address: backendLog.ip_address ?? backendLog.ipAddress ?? null,
+    description: backendLog.description ?? backendLog.ai_explanation ?? backendLog.aiExplanation ?? null,
+    severity: backendLog.severity,
+    ai_classification: classification,
   };
 }
 
@@ -405,6 +426,21 @@ export const logsApi = {
     filters?.severities?.forEach((value) => params.append('severity', value));
     filters?.statuses?.forEach((value) => params.append('status', value));
 
-    return apiGet<PaginatedLogs>(`/logs?${params.toString()}`);
+    const response = await apiGet<any>(`/logs?${params.toString()}`);
+    const items = Array.isArray(response.items) ? response.items.map(transformLogEntry) : [];
+    const total = Number(response.total ?? items.length);
+    const resolvedPageSize = Number(response.pageSize ?? pageSize);
+    const resolvedPage = Number(response.page ?? page);
+    const totalPages = Number(response.totalPages ?? Math.ceil(total / resolvedPageSize || 1));
+
+    console.log("CHECKING DATA:", response);
+
+    return {
+      items,
+      page: resolvedPage,
+      pageSize: resolvedPageSize,
+      total,
+      totalPages,
+    } as PaginatedLogs;
   },
 };

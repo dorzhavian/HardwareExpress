@@ -6,8 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "ai": "cd ai_service && .\\.venv\\Scripts\\activate && uvicorn log_ai_service:app --host 127.0.0.1 --port 8001 --reload",
-    "dev:all": "concurrently \"npm run dev\" \"npm run ai\"",
+    "ai": "cd ai_service && .\\.venv\\Scripts\\python.exe -m uvicorn log_ai_service:app --host 127.0.0.1 --port 8000 --reload",    "dev:all": "concurrently \"npm run dev\" \"npm run ai\"",
     "build": "tsc",
     "start": "node dist/index.js",
     "type-check": "tsc --noEmit"

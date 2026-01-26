@@ -113,6 +113,12 @@ export interface OrderItemRow {
 }
 
 /**
+ * AI Classification Enum
+ * Values for log AI classification
+ */
+export type AiClassification = 'NORMAL' | 'ANOMALOUS' | 'PENDING';
+
+/**
  * Logs Table
  * Matches exact database schema from DATABASE_SCHEMA.md
  */
@@ -127,32 +133,8 @@ export interface LogRow {
   ip_address: string | null; // text (nullable)
   description: string | null; // text (nullable)
   severity: LogSeverity; // log_severity_enum
-}
-
-/**
- * Logs AI Table
- * Matches exact database schema from DATABASE_SCHEMA.md (updated)
- */
-export interface LogAiRow {
-  ai_id: string; // uuid
-  log_id: string; // uuid (FK to logs)
-  model_name: string; // text
-  score: number; // float4
-  threshold: number; // float4
-  is_suspicious: boolean; // boolean
-  raw: unknown | null; // jsonb (nullable)
-  created_at: string; // timestamptz
-}
-
-/**
- * Logs table with AI score metadata
- * Used for log list joins (logs + logs_ai scores)
- */
-export interface LogWithAiRow extends LogRow {
-  logs_ai?: Array<{
-    score: number;
-    threshold: number;
-  }> | null;
+  ai_classification: AiClassification; // VARCHAR(20), defaults to 'PENDING'
+  ai_explanation: string | null; // TEXT (nullable)
 }
 
 

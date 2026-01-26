@@ -5,6 +5,69 @@ This document tracks the current status and architectural decisions of the Hardw
 ---
 
 ## [STATUS UPDATE]
+**Date:** 2026-01-25  
+**Component:** Frontend - Admin Logs UI  
+**Change:** Updated logs table to display new `ai_classification` field with color-coded badges  
+**Reason:** Replace old `aiAlert` boolean with new classification system (NORMAL/ANOMALOUS/PENDING)  
+**Impact:** Logs table shows AI Analysis column; ANOMALOUS rows highlighted in red; handles missing values as PENDING.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-25  
+**Component:** Frontend Types  
+**Change:** Added `AiClassification` type and updated `LogEntry` interface with `aiClassification` and `aiExplanation` fields  
+**Reason:** Support new AI anomaly detection schema  
+**Impact:** Removed deprecated `aiAlert` field; frontend types now match backend schema.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-25  
+**Component:** Backend - Log AI Service  
+**Change:** Refactored `log-ai.service.ts` to use new classification approach; deleted `log-ai.repository.ts`  
+**Reason:** AI now returns classification labels instead of scores; results stored directly in logs table  
+**Impact:** Service calls Python AI at `/analyze`, receives `{classification: "NORMAL"|"ANOMALOUS"}`, updates logs table via `updateLogClassification`.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-25  
+**Component:** Backend - Log Repository  
+**Change:** Added `updateLogClassification()` function; removed `logs_ai` join from queries  
+**Reason:** AI classification now stored in logs table, not separate logs_ai table  
+**Impact:** `getLogsPage` returns `ai_classification` and `ai_explanation` fields directly.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-25  
+**Component:** Python AI Microservice  
+**Change:** Complete rewrite to use `meta-llama/Llama-3.2-3B-Instruct` for anomaly detection  
+**Reason:** Replace sentiment analysis with LLM-based cybersecurity anomaly detection  
+**Impact:** Service accepts `{log_text: string}`, returns `{classification: "NORMAL"|"ANOMALOUS"}`; uses GPU with float16.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-25  
+**Component:** Database Schema  
+**Change:** Dropped `logs_ai` table; added `ai_classification` (VARCHAR, default 'PENDING') and `ai_explanation` (TEXT) to logs table  
+**Reason:** Simplify AI integration by storing classification directly on log records  
+**Impact:** Single table for logs with AI metadata; no join required.
+
+---
+
+## [STATUS UPDATE]
+**Date:** 2026-01-25  
+**Component:** TypeScript Types (Backend)  
+**Change:** Removed `LogAiRow` and `LogWithAiRow` interfaces; added `AiClassification` type and new fields to `LogRow`  
+**Reason:** Match new database schema without logs_ai table  
+**Impact:** Backend types now include `ai_classification` and `ai_explanation` on `LogRow`.
+
+---
+
+## [STATUS UPDATE]
 **Date:** 2026-01-19  
 **Component:** Login UI  
 **Change:** Swapped login image import to assets folder, removed the header icon, and reduced image column width  

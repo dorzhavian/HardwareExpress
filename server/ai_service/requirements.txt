@@ -1,6 +1,6 @@
-fastapi==0.115.0
-uvicorn[standard]==0.30.6
-transformers==4.43.4
+fastapi
+uvicorn
+pydantic
 torch
-numpy<2
-hf_xet
+transformers
+accelerate

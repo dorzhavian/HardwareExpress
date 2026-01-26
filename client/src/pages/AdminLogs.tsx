@@ -5,7 +5,7 @@ import { FileText, Filter } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useAuth } from '@/context/AuthContext';
 import { logsApi } from '@/services/api';
-import { LogEntry, LogSeverity, LogStatus } from '@/types';
+import { LogEntry, LogSeverity, LogStatus, AiClassification } from '@/types';
 import type { LogAction } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -39,6 +39,12 @@ const severityStyles: Record<LogSeverity, string> = {
   medium: 'bg-warning/10 text-warning border-warning/20',
   high: 'bg-destructive/10 text-destructive border-destructive/20',
   critical: 'bg-destructive text-destructive-foreground border-destructive',
+};
+
+const aiClassificationStyles: Record<AiClassification, string> = {
+  NORMAL: 'bg-success/10 text-success border-success/20',
+  ANOMALOUS: 'bg-destructive text-destructive-foreground border-destructive font-semibold',
+  PENDING: 'bg-muted text-warning border-warning/30',
 };
 
 const ACTION_OPTIONS: LogAction[] = ['login', 'logout', 'create', 'update', 'delete', 'approve'];
@@ -114,31 +120,30 @@ export default function AdminLogs() {
   };
 
   useEffect(() => {
-    const fetchLogs = async () => {
+    const fetchLogs = async (showLoading = true) => {
       try {
-        setIsLoading(true);
+        if (showLoading) setIsLoading(true); // מציג טעינה רק בפעם הראשונה/מעבר עמוד
+        
         const response = await logsApi.getPage(page, PAGE_SIZE, appliedFilters);
+        
         setLogs(response.items);
         setTotalPages(response.totalPages);
         setTotalCount(response.total);
       } catch (error) {
         console.error('Failed to fetch logs:', error);
-        setLogs([]);
-        setTotalPages(0);
-        setTotalCount(0);
       } finally {
-        setIsLoading(false);
+        if (showLoading) setIsLoading(false);
       }
     };
+    fetchLogs(true);
 
-    fetchLogs();
+    const intervalId = setInterval(() => {
+      fetchLogs(false);
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+
   }, [page, appliedFilters]);
-
-  useEffect(() => {
-    if (totalPages > 0 && page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
 
   const paginationItems = useMemo(() => buildPaginationItems(page, totalPages), [page, totalPages]);
 
@@ -258,24 +263,30 @@ export default function AdminLogs() {
                     <TableHead>Resource</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Severity</TableHead>
+                    <TableHead>AI Classification</TableHead>
                     <TableHead>IP</TableHead>
                     <TableHead>Description</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {logs.map((log) => (
-                    <TableRow
+                {logs.map((log) => {
+                  // כאן התיקון הקריטי - שימוש בקו תחתון כפי שזה מגיע מה-DB
+                  const classification = log.ai_classification || 'PENDING';
+                  const isAnomalous = classification === 'ANOMALOUS';
+                  
+                  return (
+                    <TableRow 
                       key={log.id}
-                      className={log.aiAlert ? 'bg-destructive/10 border-l-4 border-destructive/40' : undefined}
+                      className={isAnomalous ? 'bg-destructive/10 border-l-4 border-destructive/40' : undefined}
                     >
                       <TableCell className="text-muted-foreground">
                         {log.timestamp ? format(new Date(log.timestamp), 'MMM d, yyyy HH:mm') : 'N/A'}
                       </TableCell>
                       <TableCell className="break-all">
-                        {log.userId || 'System'}
+                        {log.user_id || 'System'}
                       </TableCell>
                       <TableCell className="text-muted-foreground capitalize break-words">
-                        {log.userRole ? log.userRole.replace('_', ' ') : 'N/A'}
+                        {log.user_role ? log.user_role.replace('_', ' ') : 'N/A'}
                       </TableCell>
                       <TableCell className="capitalize break-words">{log.action}</TableCell>
                       <TableCell className="capitalize break-words">{log.resource}</TableCell>
@@ -289,14 +300,20 @@ export default function AdminLogs() {
                           {log.severity}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={aiClassificationStyles[classification]}>
+                          {classification}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="text-muted-foreground break-words">
-                        {log.ipAddress || 'N/A'}
+                        {log.ip_address || 'N/A'}
                       </TableCell>
                       <TableCell className="text-muted-foreground whitespace-normal break-words">
                         {log.description || 'N/A'}
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );
+                })}
                 </TableBody>
               </Table>
             )}
