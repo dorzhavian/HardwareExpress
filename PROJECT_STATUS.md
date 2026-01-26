@@ -5,6 +5,15 @@ This document tracks the current status and architectural decisions of the Hardw
 ---
 
 ## [STATUS UPDATE]
+**Date:** 2026-01-26  
+**Component:** Backend - Logs API + Auth Logout  
+**Change:** Logs API now returns `aiClassification` from logs table; logout route requires auth to record logout events  
+**Reason:** Frontend must display AI classification from DB, and logout logs need authenticated user context  
+**Impact:** Admin logs UI can render real AI classifications; logout events are recorded reliably.
+
+---
+
+## [STATUS UPDATE]
 **Date:** 2026-01-25  
 **Component:** Frontend - Admin Logs UI  
 **Change:** Updated logs table to display new `ai_classification` field with color-coded badges  

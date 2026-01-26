@@ -14,7 +14,7 @@
 
 import { getLogsPage } from '../repositories/log.repository.js';
 import { LogResponse, PaginatedLogsResponse } from '../types/api.js';
-import { LogWithAiRow } from '../types/database.js';
+import { LogRow } from '../types/database.js';
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 100;
@@ -30,16 +30,15 @@ const MAX_PAGE_SIZE = 100;
  * Rejected: Repository should return raw database types.
  *           Controller should only handle HTTP concerns.
  */
-function transformLogToResponse(log: LogWithAiRow): LogResponse {
+function transformLogToResponse(log: LogRow): LogResponse {
   /**
-   * Decision: Mark alert if any AI score exceeds its threshold
-   * Reason: A single suspicious model result should flag the log for review.
-   * Alternative: Use only the latest model result
-   * Rejected: Requires extra ordering data and can hide earlier high-risk scores.
+   * Decision: Derive aiAlert from ai_classification
+   * Reason: AI classification is now stored directly on the log row.
+   * Alternative: Join logs_ai for score-based alerting
+   * Rejected: Logs table is the single source of truth per current schema.
    */
-  const aiAlert = Array.isArray(log.logs_ai)
-    ? log.logs_ai.some((entry) => entry.score > entry.threshold)
-    : false;
+  const aiClassification = log.ai_classification ?? 'PENDING';
+  const aiAlert = aiClassification === 'ANOMALOUS';
 
   return {
     id: log.log_id,
@@ -52,6 +51,7 @@ function transformLogToResponse(log: LogWithAiRow): LogResponse {
     ipAddress: log.ip_address,
     description: log.description,
     severity: log.severity,
+    aiClassification,
     aiAlert,
   };
 }

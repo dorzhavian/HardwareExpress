@@ -22,6 +22,7 @@ import {
   LogResource,
   LogStatus,
   LogSeverity,
+  AiClassification,
 } from './database.js';
 
 /**
@@ -92,6 +93,7 @@ export interface LogResponse {
   ipAddress: string | null;
   description: string | null;
   severity: LogSeverity;
+  aiClassification: AiClassification;
   aiAlert: boolean;
 }
 

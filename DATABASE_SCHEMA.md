@@ -106,6 +106,8 @@ Foreign Keys:
 | ip_address | text | YES | |
 | description | text | YES | |
 | severity | log_severity_enum | NO | |
+| ai_classification | varchar | NO | PENDING |
+| ai_explanation | text | YES | |
 
 Primary Key: log_id
 
