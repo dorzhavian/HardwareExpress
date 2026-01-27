@@ -1,36 +1,9 @@
-/**
- * Dashboard Service
- * 
- * Business logic for dashboard aggregation operations.
- * Handles calculations and transformations for dashboard statistics.
- * 
- * Decision: Service layer for business logic
- * Reason: Separates business rules from controllers and repositories.
- *         Controllers handle HTTP, services handle business logic.
- * 
- * Alternative: Business logic in controllers
- * Rejected: Violates CURSOR_RULES.md requirement: "No business logic inside controllers"
- */
-
 import { getAllOrdersForDashboard, getRecentOrders } from '../repositories/dashboard.repository.js';
 import { getAllOrdersService } from './order.service.js';
 import { DashboardStatsResponse, OrderResponse } from '../types/api.js';
 
 /**
  * Get dashboard statistics
- * 
- * Decision: Calculate stats server-side from database
- * Reason: Ensures accuracy, single source of truth, handles all edge cases.
- * 
- * Alternative: Calculate stats client-side
- * Rejected: Less efficient, requires fetching all data, potential inconsistencies.
- * 
- * Decision: Hardcoded monthly budget (can be made configurable later)
- * Reason: Simple for Phase 4. Can be moved to database/config in future.
- * 
- * Alternative: Store monthly budget in database
- * Rejected: Adds complexity, not needed for Phase 4. Can be enhanced later.
- * 
  * @returns Dashboard statistics
  */
 export async function getDashboardStats(): Promise<DashboardStatsResponse> {

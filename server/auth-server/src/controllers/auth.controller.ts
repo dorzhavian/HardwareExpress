@@ -1,20 +1,5 @@
 /**
- * Authentication Controller
- * 
  * Handles HTTP request/response for authentication endpoints.
- * No business logic - delegates to auth service.
- * 
- * Decision: Controllers handle only HTTP concerns
- * Reason: Follows CURSOR_RULES.md: "No business logic inside controllers"
- *         Controllers = request/response handling only.
- * 
- * Alternative: Business logic in controllers
- * Rejected: Violates separation of concerns, harder to test,
- *           doesn't follow project architecture rules.
- * 
- * Note: This is the Authentication Server - it only handles login.
- *       Logout and /me endpoints are handled by Backend API.
- *       Uses shared logging service from Backend API for AI analysis.
  */
 
 import { Request, Response } from 'express';
@@ -24,14 +9,6 @@ import { logAuthEvent, extractIpAddress } from '../../../src/services/logging.se
 
 /**
  * POST /login
- * Authenticate user with email and password
- * 
- * Decision: Return 401 for invalid credentials (not 404)
- * Reason: Security best practice - don't reveal if email exists.
- *         Same response for invalid email or password.
- * 
- * Alternative: Different responses for "email not found" vs "wrong password"
- * Rejected: Security vulnerability - reveals which emails exist in system.
  */
 export async function loginController(req: Request, res: Response): Promise<void> {
   try {

@@ -3,15 +3,6 @@
  * 
  * Centralized HTTP client for backend API communication.
  * Handles authentication tokens, error handling, and request/response transformation.
- * 
- * Decision: Using Fetch API instead of Axios
- * Reason: 
- * - Native browser API, no additional dependency
- * - Sufficient for our needs
- * - Lighter weight than Axios
- * 
- * Alternative: Using Axios
- * Rejected: Adds dependency, Fetch API is sufficient for our use case.
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -19,19 +10,6 @@ const AUTH_BASE_URL = import.meta.env.VITE_AUTH_URL || 'http://localhost:3001';
 
 /**
  * Get stored JWT token from localStorage
- * 
- * Decision: localStorage for token storage
- * Reason: 
- * - Persists across page refreshes
- * - Simple to implement
- * - Standard practice for JWT storage
- * 
- * Alternative: sessionStorage
- * Rejected: Token lost on tab close, worse UX for users.
- * 
- * Alternative: httpOnly cookies
- * Rejected: More complex, requires cookie handling, CORS considerations.
- *           localStorage is sufficient for Phase 6.
  */
 export function getAuthToken(): string | null {
   return localStorage.getItem('auth_token');
@@ -39,7 +17,6 @@ export function getAuthToken(): string | null {
 
 /**
  * Store JWT token in localStorage
- * 
  * @param token - JWT token string
  */
 export function setAuthToken(token: string): void {
@@ -55,12 +32,6 @@ export function removeAuthToken(): void {
 
 /**
  * API Error class
- * 
- * Decision: Custom error class for API errors
- * Reason: Better error handling, includes status code and error details.
- * 
- * Alternative: Throw generic Error
- * Rejected: Less informative, harder to handle different error types.
  */
 export class ApiError extends Error {
   constructor(
@@ -75,16 +46,6 @@ export class ApiError extends Error {
 
 /**
  * Make HTTP request to API
- * 
- * Decision: Centralized request function
- * Reason: 
- * - Consistent error handling
- * - Automatic token injection
- * - Single place to modify request behavior
- * 
- * Alternative: Direct fetch calls in each API function
- * Rejected: Code duplication, inconsistent error handling.
- * 
  * @param endpoint - API endpoint (e.g., '/auth/login')
  * @param options - Fetch options
  * @returns Response data
@@ -196,8 +157,5 @@ export function apiDelete<T>(endpoint: string): Promise<T> {
 
 /**
  * Authentication Server Base URL
- * 
- * Note: Login endpoint is on separate Authentication Server (port 3001),
- * while all other API endpoints are on Backend API (port 3000).
  */
 export { AUTH_BASE_URL };

@@ -1,63 +1,44 @@
 /**
  * Database Type Definitions
- * 
- * TypeScript types matching the exact database schema.
- * These types represent the raw database structure without any transformations.
- * 
- * Decision: Separate database types from API response types
- * Reason: Database schema uses snake_case and different field names than frontend.
- *         We'll transform these in repositories/services before sending to API.
- * 
- * Alternative: Using a single type for both database and API
- * Rejected: Would require changing database schema or frontend types, violating
- *           the constraint that database schema is the single source of truth.
  */
 
 /**
  * User Role Enum
- * Matches PostgreSQL enum: user_role_enum
  */
 export type UserRole = 'admin' | 'procurement_manager' | 'employee';
 
 /**
  * Item Category Enum
- * Matches PostgreSQL enum: item_category_enum
  */
 export type ItemCategory = 'Laptops' | 'Monitors' | 'Peripherals' | 'Printers' | 'Components' | 'Storage';
 
 /**
  * Order Status Enum
- * Matches PostgreSQL enum: order_status_enum
  */
 export type OrderStatus = 'pending' | 'approved' | 'rejected' | 'completed';
 
 /**
  * Log Action Enum
- * Matches PostgreSQL enum: log_action_enum
  */
 export type LogAction = 'login' | 'logout' | 'create' | 'update' | 'delete' | 'approve';
 
 /**
  * Log Resource Enum
- * Matches PostgreSQL enum: log_resource_enum
  */
 export type LogResource = 'user' | 'order' | 'item' | 'auth';
 
 /**
  * Log Status Enum
- * Matches PostgreSQL enum: log_status_enum
  */
 export type LogStatus = 'success' | 'failure';
 
 /**
  * Log Severity Enum
- * Matches PostgreSQL enum: log_severity_enum
  */
 export type LogSeverity = 'low' | 'medium' | 'high' | 'critical';
 
 /**
  * Users Table
- * Matches exact database schema from DATABASE_SCHEMA.md
  */
 export interface UserRow {
   user_id: string; // uuid
@@ -71,7 +52,6 @@ export interface UserRow {
 
 /**
  * Catalog Items Table
- * Matches exact database schema from DATABASE_SCHEMA.md
  */
 export interface CatalogItemRow {
   item_id: string; // uuid
@@ -86,8 +66,7 @@ export interface CatalogItemRow {
 }
 
 /**
- * Orders Table
- * Matches exact database schema from DATABASE_SCHEMA.md
+ * //Orders Table
  */
 export interface OrderRow {
   order_id: string; // uuid
@@ -101,7 +80,6 @@ export interface OrderRow {
 
 /**
  * Order Items Table
- * Matches exact database schema from DATABASE_SCHEMA.md
  */
 export interface OrderItemRow {
   order_id: string; // uuid (FK to orders, part of composite PK)
@@ -120,7 +98,6 @@ export type AiClassification = 'NORMAL' | 'ANOMALOUS' | 'PENDING';
 
 /**
  * Logs Table
- * Matches exact database schema from DATABASE_SCHEMA.md
  */
 export interface LogRow {
   log_id: string; // uuid

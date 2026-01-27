@@ -1,18 +1,3 @@
-/**
- * User Service
- * 
- * Business logic for user management operations.
- * Handles transformations from database types to API types.
- * Admin-only operations.
- * 
- * Decision: Service layer for business logic
- * Reason: Separates business rules from controllers and repositories.
- *         Controllers handle HTTP, services handle business logic.
- * 
- * Alternative: Business logic in controllers
- * Rejected: Violates CURSOR_RULES.md requirement: "No business logic inside controllers"
- */
-
 import {
   getAllUsers as getAllUsersFromRepo,
   findUserById,
@@ -27,14 +12,6 @@ import { UserRow, UserRole } from '../types/database.js';
 /**
  * Transform database user row to API response
  * Removes password_hash and converts field names
- * 
- * Decision: Transform in service layer
- * Reason: Keeps database types separate from API types.
- *         Single transformation point for user data.
- * 
- * Alternative: Transform in repository or controller
- * Rejected: Repository should return raw database types.
- *           Controller should only handle HTTP concerns.
  */
 function transformUserToResponse(user: UserRow): UserResponse {
   return {
@@ -59,7 +36,6 @@ export async function getAllUsers(): Promise<UserResponse[]> {
 
 /**
  * Get user by ID
- * 
  * @param userId - User UUID
  * @returns User response or null if not found
  */
@@ -73,14 +49,6 @@ export async function getUserById(userId: string): Promise<UserResponse | null> 
 
 /**
  * Create a new user
- * 
- * Decision: Hash password in service layer
- * Reason: Password hashing is business logic, not data access.
- *         Repository should receive already-hashed password.
- * 
- * Alternative: Hash password in repository
- * Rejected: Repository should only handle data access, not business logic.
- * 
  * @param userData - User creation data
  * @returns Created user response
  */
@@ -108,13 +76,6 @@ export async function createUser(userData: {
 
 /**
  * Update user
- * 
- * Decision: Only hash password if provided
- * Reason: Password updates are optional. If not provided, keep existing password.
- * 
- * Alternative: Always require password on update
- * Rejected: Too restrictive - admin should be able to update other fields without password.
- * 
  * @param userId - User UUID
  * @param updates - Partial user update data
  * @returns Updated user response or null if not found
@@ -157,7 +118,6 @@ export async function updateUser(
 
 /**
  * Delete user
- * 
  * @param userId - User UUID
  * @returns true if deleted, false if not found
  */

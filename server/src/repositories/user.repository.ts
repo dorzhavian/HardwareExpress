@@ -1,16 +1,5 @@
 /**
- * User Repository
- * 
  * Database access layer for users table.
- * Contains only database queries, no business logic.
- * 
- * Decision: Repository pattern for database access
- * Reason: Separates data access from business logic, makes testing easier,
- *         allows swapping database implementations if needed.
- * 
- * Alternative: Direct database calls in services
- * Rejected: Violates separation of concerns, makes testing harder,
- *           doesn't follow CURSOR_RULES.md architecture.
  */
 
 import { database } from '../config/database.js';
@@ -18,10 +7,6 @@ import { UserRow } from '../types/database.js';
 
 /**
  * Find user by user_id
- * 
- * Note: findUserByEmail was moved to Authentication Server.
- *       Backend API only needs to find users by ID for authenticated requests.
- * 
  * @param userId - User UUID
  * @returns User row or null if not found
  */
@@ -41,7 +26,6 @@ export async function findUserById(userId: string): Promise<UserRow | null> {
 
 /**
  * Get all users
- * 
  * @returns Array of user rows
  */
 export async function getAllUsers(): Promise<UserRow[]> {
@@ -59,7 +43,6 @@ export async function getAllUsers(): Promise<UserRow[]> {
 
 /**
  * Create a new user
- * 
  * @param userData - User creation data
  * @returns Created user row
  */
@@ -91,7 +74,6 @@ export async function createUser(userData: {
 
 /**
  * Update user
- * 
  * @param userId - User UUID
  * @param updates - Partial user update data
  * @returns Updated user row or null if not found
@@ -125,7 +107,6 @@ export async function updateUser(
 
 /**
  * Delete user
- * 
  * @param userId - User UUID
  * @returns true if deleted, false if not found
  */

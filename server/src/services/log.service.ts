@@ -1,17 +1,3 @@
-/**
- * Log Service
- * 
- * Business logic for log retrieval and pagination.
- * Transforms database rows to API response format.
- * 
- * Decision: Pagination handled in service layer
- * Reason: Centralizes pagination logic and response formatting.
- *         Keeps controllers thin and repositories focused on data access.
- * 
- * Alternative: Pagination logic in controller
- * Rejected: Controllers should only handle HTTP concerns per CURSOR_RULES.md.
- */
-
 import { getLogsPage } from '../repositories/log.repository.js';
 import { LogResponse, PaginatedLogsResponse } from '../types/api.js';
 import { LogRow } from '../types/database.js';
@@ -21,22 +7,8 @@ const MAX_PAGE_SIZE = 100;
 
 /**
  * Transform database log row to API response
- * 
- * Decision: Transform in service layer
- * Reason: Keeps database types separate from API types.
- *         Single transformation point for log data.
- * 
- * Alternative: Transform in repository or controller
- * Rejected: Repository should return raw database types.
- *           Controller should only handle HTTP concerns.
  */
 function transformLogToResponse(log: LogRow): LogResponse {
-  /**
-   * Decision: Derive aiAlert from ai_classification
-   * Reason: AI classification is now stored directly on the log row.
-   * Alternative: Join logs_ai for score-based alerting
-   * Rejected: Logs table is the single source of truth per current schema.
-   */
   const aiClassification = log.ai_classification ?? 'PENDING';
   const aiAlert = aiClassification === 'ANOMALOUS';
 

@@ -1,28 +1,8 @@
 /**
- * HardwareExpress Authentication Server
- * 
  * Dedicated authentication server that handles user login and JWT token generation.
  * Separated from Backend API for improved security and architecture.
- * 
- * Decision: Separate Authentication Server
- * Reason: 
- * - Separation of concerns: Auth Server handles passwords, Backend API handles business logic
- * - Improved security: Backend API doesn't need access to password hashes
- * - Better architecture: Follows microservices pattern for authentication
- * 
- * Alternative: Single monolithic server
- * Rejected: Assignment requirements specify separate Authentication Server and Backend API.
- *           This separation improves security by isolating password handling.
- * 
- * Architecture:
- * - Auth Server (this): Handles login, password verification, JWT generation (port 3001)
- * - Backend API: Handles JWT verification and all business logic (port 3000)
- * 
- * Note: Auth Server uses shared logging service from Backend API (../../src/services/logging.service.js)
- *       to ensure all logs go through AI analysis.
  */
 
-// IMPORTANT: Load environment variables FIRST before any other imports
 import './config/env.js';
 
 import express from 'express';

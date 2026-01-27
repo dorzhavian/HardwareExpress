@@ -20,13 +20,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   /**
    * Clear cart when user logs out or changes
-   * 
-   * Decision: Clear cart on user change
-   * Reason: Prevents cart data from persisting across user sessions.
-   *         Each user should have their own cart state.
-   * 
-   * Alternative: Persist cart across users
-   * Rejected: Security and privacy concern - users shouldn't see other users' cart items.
    */
   useEffect(() => {
     if (!user) {

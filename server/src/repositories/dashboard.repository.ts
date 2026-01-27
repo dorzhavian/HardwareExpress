@@ -1,16 +1,5 @@
 /**
- * Dashboard Repository
- * 
  * Database access layer for dashboard aggregation queries.
- * Contains only database queries, no business logic.
- * 
- * Decision: Repository pattern for database access
- * Reason: Separates data access from business logic, makes testing easier,
- *         allows swapping database implementations if needed.
- * 
- * Alternative: Direct database calls in services
- * Rejected: Violates separation of concerns, makes testing harder,
- *           doesn't follow CURSOR_RULES.md architecture.
  */
 
 import { database } from '../config/database.js';
@@ -18,7 +7,6 @@ import { OrderRow } from '../types/database.js';
 
 /**
  * Get all orders for dashboard aggregation
- * 
  * @returns Array of order rows
  */
 export async function getAllOrdersForDashboard(): Promise<OrderRow[]> {
@@ -36,7 +24,6 @@ export async function getAllOrdersForDashboard(): Promise<OrderRow[]> {
 
 /**
  * Get recent orders
- * 
  * @param limit - Maximum number of orders to return
  * @returns Array of order rows
  */

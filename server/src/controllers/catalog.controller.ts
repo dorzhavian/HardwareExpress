@@ -1,16 +1,5 @@
 /**
- * Catalog Controller
- * 
  * Handles HTTP request/response for catalog/equipment endpoints.
- * No business logic - delegates to catalog service.
- * 
- * Decision: Controllers handle only HTTP concerns
- * Reason: Follows CURSOR_RULES.md: "No business logic inside controllers"
- *         Controllers = request/response handling only.
- * 
- * Alternative: Business logic in controllers
- * Rejected: Violates separation of concerns, harder to test,
- *           doesn't follow project architecture rules.
  */
 
 import { Request, Response } from 'express';
@@ -23,8 +12,6 @@ import {
 
 /**
  * GET /api/equipment
- * Get all equipment items
- * Optional query params: category, search
  */
 export async function getAllEquipmentController(
   req: Request,
@@ -57,7 +44,6 @@ export async function getAllEquipmentController(
 
 /**
  * GET /api/equipment/:itemId
- * Get equipment item by ID
  */
 export async function getEquipmentByIdController(
   req: Request,
@@ -95,7 +81,6 @@ export async function getEquipmentByIdController(
 
 /**
  * GET /api/equipment/categories
- * Get list of available categories
  */
 export async function getCategoriesController(
   _req: Request,

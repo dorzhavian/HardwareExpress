@@ -1,16 +1,5 @@
 /**
- * Dashboard Controller
- * 
  * Handles HTTP request/response for dashboard endpoints.
- * No business logic - delegates to dashboard service.
- * 
- * Decision: Controllers handle only HTTP concerns
- * Reason: Follows CURSOR_RULES.md: "No business logic inside controllers"
- *         Controllers = request/response handling only.
- * 
- * Alternative: Business logic in controllers
- * Rejected: Violates separation of concerns, harder to test,
- *           doesn't follow project architecture rules.
  */
 
 import { Request, Response } from 'express';
@@ -38,8 +27,6 @@ export async function getDashboardStatsController(
 
 /**
  * GET /api/dashboard/recent-orders
- * Get recent orders for dashboard
- * Query param: limit (optional, default: 5)
  */
 export async function getRecentOrdersController(
   req: Request,

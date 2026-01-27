@@ -20,13 +20,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /**
    * Check if user is authenticated on mount
-   * 
-   * Decision: Check token on app load
-   * Reason: Restore user session if valid token exists.
-   *         Provides seamless UX across page refreshes.
-   * 
-   * Alternative: Require login on every page refresh
-   * Rejected: Poor UX, users expect to stay logged in.
    */
   useEffect(() => {
     const checkAuth = async () => {

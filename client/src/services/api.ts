@@ -1,39 +1,11 @@
 /**
- * API Service
- * 
  * Frontend API service layer for communicating with backend.
- * Replaces mock API implementations with real HTTP calls.
- * 
- * Decision: Service layer for API calls
- * Reason: 
- * - Centralized API communication
- * - Consistent error handling
- * - Easy to test and mock
- * 
- * Alternative: Direct fetch calls in components
- * Rejected: Code duplication, harder to maintain, violates separation of concerns.
  */
 
 import { apiGet, apiPost, apiPatch, apiDelete, setAuthToken, removeAuthToken, AUTH_BASE_URL, ApiError } from '@/lib/api-client';
 import { User, Equipment, Order, DashboardStats, OrderStatus, PaginatedLogs, LogEntry } from '@/types';
 
 /**
- * Map backend OrderStatus to frontend OrderStatus
- * 
- * Decision: Explicit mapping function
- * Reason: 
- * - Backend enum: pending, approved, rejected, completed
- * - Frontend enum: pending, approved, rejected, ordered, delivered
- * - Frontend has 'ordered' and 'delivered' which don't exist in backend
- * - We map 'completed' to 'delivered' for frontend display
- * 
- * Alternative: Change frontend enum to match backend
- * Rejected: Frontend UI may need these statuses for display purposes.
- *           Mapping allows frontend flexibility while backend stays simple.
- * 
- * Alternative: Silent mapping in API responses
- * Rejected: Violates requirement: "Handle enum mismatches explicitly (no silent mapping)"
- * 
  * @param backendStatus - Order status from backend API
  * @returns Frontend OrderStatus
  */
@@ -91,17 +63,6 @@ export const authApi = {
   /**
    * Login with email and password
    * Returns user data and stores JWT token
-   * 
-   * Decision: Use Authentication Server for login
-   * Reason: Authentication Server handles password verification and JWT generation.
-   *         Backend API only verifies tokens, doesn't handle login.
-   * 
-   * Alternative: Use Backend API for login
-   * Rejected: Assignment requirements specify separate Authentication Server.
-   *           This separation improves security by isolating password handling.
-   * 
-   * Note: Login endpoint is on Authentication Server (port 3001),
-   *       while all other endpoints are on Backend API (port 3000).
    */
   login: async (email: string, password: string): Promise<{ user: User; token: string }> => {
     const url = `${AUTH_BASE_URL}/login`;
@@ -163,10 +124,6 @@ export const authApi = {
   /**
    * Logout
    * Removes token from storage
-   * 
-   * Decision: Always call logout endpoint before removing token
-   * Reason: Ensures logout event is logged on server side.
-   *         Even if API call fails, we still remove token client-side.
    */
   logout: async (): Promise<void> => {
     try {
@@ -235,26 +192,13 @@ export const equipmentApi = {
 
   /**
    * Get equipment by category
-   * 
-   * Decision: Use getAll with category parameter
-   * Reason: Backend supports category filter in getAll endpoint.
- *         No need for separate endpoint.
-   * 
-   * Alternative: Separate getByCategory endpoint
-   * Rejected: Backend doesn't have this endpoint, uses query params instead.
    */
   getByCategory: async (category: string): Promise<Equipment[]> => {
     return equipmentApi.getAll(category);
   },
 
   /**
-   * Search equipment
-   * 
-   * Decision: Use getAll with search parameter
-   * Reason: Backend supports search filter in getAll endpoint.
-   * 
-   * Alternative: Separate search endpoint
-   * Rejected: Backend doesn't have this endpoint, uses query params instead.
+   * Search equipment.
    */
   search: async (query: string): Promise<Equipment[]> => {
     return equipmentApi.getAll(undefined, query);
@@ -296,11 +240,6 @@ export const ordersApi = {
 
   /**
    * Create new order
-   * 
-   * Decision: Transform request format to match backend
-   * Reason: Backend expects different format than frontend Order type.
-   *         Backend expects: { items: [{ equipmentId, quantity }], justification }
-   * 
    * @param order - Order data in frontend format
    */
   create: async (order: {
@@ -318,14 +257,6 @@ export const ordersApi = {
 
   /**
    * Update order status
-   * 
-   * Decision: Map frontend status to backend status
-   * Reason: Frontend has 'ordered'/'delivered', backend has 'completed'.
-   *         We map 'ordered' and 'delivered' to 'completed' when sending to backend.
-   * 
-   * Alternative: Change frontend to use 'completed'
-   * Rejected: Frontend UI may need distinction between ordered and delivered.
-   * 
    * @param orderId - Order ID
    * @param status - Frontend OrderStatus
    */
@@ -386,10 +317,6 @@ export const usersApi = {
 
   /**
    * Create new user
-   * 
-   * Decision: Transform request format
-   * Reason: Frontend uses 'name', backend expects 'full_name'.
-   *         Frontend doesn't send password in User type, but API requires it.
    */
   create: async (user: {
     name: string;

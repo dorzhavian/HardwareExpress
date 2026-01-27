@@ -11,13 +11,6 @@ import { cn } from '@/lib/utils';
 
 /**
  * Equipment categories
- * 
- * Decision: Hardcoded categories list matching backend enum
- * Reason: Backend doesn't have a categories endpoint (uses query params).
- *         Frontend needs this list for filter buttons.
- * 
- * Alternative: Fetch categories from backend
- * Rejected: Backend doesn't have this endpoint. Can be added later if needed.
  */
 const equipmentCategories: string[] = [
   'All',

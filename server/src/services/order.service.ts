@@ -1,17 +1,3 @@
-/**
- * Order Service
- * 
- * Business logic for order operations.
- * Handles transformations from database types to API types.
- * 
- * Decision: Service layer for business logic
- * Reason: Separates business rules from controllers and repositories.
- *         Controllers handle HTTP, services handle business logic.
- * 
- * Alternative: Business logic in controllers
- * Rejected: Violates CURSOR_RULES.md requirement: "No business logic inside controllers"
- */
-
 import {
   getAllOrders,
   getOrdersByUserId,
@@ -29,8 +15,6 @@ import { transformCatalogItemToResponse } from './catalog.service.js';
 
 /**
  * Transform order item to API response
- * Includes full equipment data
- * 
  * @param orderItem - Database order item row
  * @param equipment - Equipment data (from catalog)
  * @returns API order item response
@@ -49,22 +33,6 @@ function transformOrderItemToResponse(
 
 /**
  * Transform order to API response
- * Includes order items and user data
- * 
- * Decision: Include full equipment objects in order items
- * Reason: Frontend expects complete equipment data for display.
- *         Avoids multiple API calls to fetch equipment details.
- * 
- * Alternative: Return only item_id and require separate equipment fetch
- * Rejected: Worse UX, requires multiple API calls, more complex frontend logic.
- * 
- * Decision: Use created_at as updated_at if not available
- * Reason: Database doesn't have updated_at field. Using created_at is reasonable
- *         default. Can be enhanced in future if needed.
- * 
- * Alternative: Add updated_at column to database
- * Rejected: Database schema is immutable. We adapt to existing schema.
- * 
  * @param order - Database order row
  * @param orderItems - Array of order item rows
  * @param userName - User's full name
@@ -105,7 +73,6 @@ async function transformOrderToResponse(
 
 /**
  * Get all orders
- * 
  * @returns Array of order responses
  */
 export async function getAllOrdersService(): Promise<OrderResponse[]> {
@@ -135,7 +102,6 @@ export async function getAllOrdersService(): Promise<OrderResponse[]> {
 
 /**
  * Get orders by user ID
- * 
  * @param userId - User UUID
  * @returns Array of order responses
  */
@@ -162,7 +128,6 @@ export async function getOrdersByUserIdService(
 
 /**
  * Get order by ID
- * 
  * @param orderId - Order UUID
  * @returns Order response or null if not found
  */
@@ -192,14 +157,6 @@ export async function getOrderByIdService(
 
 /**
  * Create a new order
- * 
- * Decision: Validate equipment exists and calculate total server-side
- * Reason: Security - don't trust client-calculated totals.
- *         Ensures data integrity.
- * 
- * Alternative: Trust client-calculated total
- * Rejected: Security risk - client could manipulate prices.
- * 
  * @param userId - User UUID creating the order
  * @param request - Create order request
  * @returns Created order response
@@ -274,15 +231,6 @@ export async function createOrderService(
 
 /**
  * Update order status
- * 
- * Decision: Explicit enum validation
- * Reason: Database enum doesn't match frontend enum exactly.
- *         Frontend has 'ordered' and 'delivered', DB has 'completed'.
- *         We validate and reject invalid statuses explicitly.
- * 
- * Alternative: Silent mapping of frontend statuses to DB statuses
- * Rejected: Violates requirement: "Handle enum mismatches explicitly (no silent mapping)"
- * 
  * @param orderId - Order UUID
  * @param status - New order status (must match database enum)
  * @returns Updated order response or null if not found

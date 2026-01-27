@@ -1,27 +1,20 @@
-# 📦 Database Schema – HardwareExpress (Updated)
-
-מסד הנתונים נבנה עבור מערכת להזמנת ציוד מחשבים ארגונית, עם ניהול משתמשים, הזמנות, קטלוג, לוגים + ניתוח AI ללוגים.
+#  Database Schema – HardwareExpress (Updated)
 
 **Database:** PostgreSQL (Supabase)  
 **UUIDs:** gen_random_uuid()  
 **Enums:** PostgreSQL ENUM types  
-**Indexes:** B-tree  
 **Security:** Passwords stored as hashed values (password_hash)
 
 ---
 
-## 🧩 Extensions
+##  Extensions
 
-### pgcrypto
-משמש ליצירת UUID ברמת ה־DB באמצעות `gen_random_uuid()`.
-
-```sql
 create extension if not exists pgcrypto;
 ```
 
 ---
 
-## 🧑‍💼 users
+##  users
 
 | Column | Type | Nullable | Default |
 |------|------|----------|---------|
@@ -38,7 +31,7 @@ Indexes: users_pkey, users_email_key (UNIQUE)
 
 ---
 
-## 📦 catalog_items
+##  catalog_items
 
 | Column | Type | Nullable | Default |
 |------|------|----------|---------|
@@ -57,7 +50,7 @@ Indexes: catalog_items_pkey
 
 ---
 
-## 🛒 orders
+##  orders
 
 | Column | Type | Nullable | Default |
 |------|------|----------|---------|
@@ -74,7 +67,7 @@ Foreign Key: user_id → users(user_id)
 
 ---
 
-## 📑 order_items
+##  order_items
 
 | Column | Type | Nullable | Default |
 |------|------|----------|---------|
@@ -92,7 +85,7 @@ Foreign Keys:
 
 ---
 
-## 🧾 logs
+##  logs
 
 | Column | Type | Nullable | Default |
 |------|------|----------|---------|
@@ -106,53 +99,7 @@ Foreign Keys:
 | ip_address | text | YES | |
 | description | text | YES | |
 | severity | log_severity_enum | NO | |
-| ai_classification | varchar | NO | PENDING |
-
 
 Primary Key: log_id
 
-
-## 🔐 ENUM Types
-
-### user_role_enum
-- admin
-- procurement_manager
-- employee
-
-### item_category_enum
-- Laptops
-- Monitors
-- Peripherals
-- Printers
-- Components
-- Storage
-
-### order_status_enum
-- pending
-- approved
-- rejected
-- completed
-
-### log_action_enum
-- login
-- logout
-- create
-- update
-- delete
-- approve
-
-### log_resource_enum
-- user
-- order
-- item
-- auth
-
-### log_status_enum
-- success
-- failure
-
-### log_severity_enum
-- low
-- medium
-- high
-- critical
+---

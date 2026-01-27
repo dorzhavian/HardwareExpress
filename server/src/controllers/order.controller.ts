@@ -1,16 +1,5 @@
 /**
- * Order Controller
- * 
  * Handles HTTP request/response for order endpoints.
- * No business logic - delegates to order service.
- * 
- * Decision: Controllers handle only HTTP concerns
- * Reason: Follows CURSOR_RULES.md: "No business logic inside controllers"
- *         Controllers = request/response handling only.
- * 
- * Alternative: Business logic in controllers
- * Rejected: Violates separation of concerns, harder to test,
- *           doesn't follow project architecture rules.
  */
 
 import { Response } from 'express';
@@ -27,8 +16,6 @@ import { logCrudEvent, logApprovalEvent, extractIpAddress } from '../services/lo
 
 /**
  * GET /api/orders
- * Get all orders (managers and admins only)
- * Employees see only their own orders via getOrdersByUserId
  */
 export async function getAllOrdersController(
   _req: AuthenticatedRequest,
@@ -48,8 +35,6 @@ export async function getAllOrdersController(
 
 /**
  * GET /api/orders/user/:userId
- * Get orders for a specific user
- * Employees can only see their own orders
  */
 export async function getOrdersByUserIdController(
   req: AuthenticatedRequest,
@@ -67,7 +52,6 @@ export async function getOrdersByUserIdController(
       return;
     }
 
-    // Employees can only see their own orders
     if (req.user?.role === 'employee' && userId !== requestingUserId) {
       res.status(403).json({
         error: 'Forbidden',
@@ -89,7 +73,7 @@ export async function getOrdersByUserIdController(
 
 /**
  * GET /api/orders/:orderId
- * Get order by ID
+
  */
 export async function getOrderByIdController(
   req: AuthenticatedRequest,
@@ -115,7 +99,6 @@ export async function getOrderByIdController(
       return;
     }
 
-    // Employees can only see their own orders
     if (req.user?.role === 'employee' && order.userId !== req.user.user_id) {
       res.status(403).json({
         error: 'Forbidden',
@@ -136,8 +119,6 @@ export async function getOrderByIdController(
 
 /**
  * POST /api/orders
- * Create a new order
- * All authenticated users can create orders
  */
 export async function createOrderController(
   req: AuthenticatedRequest,
@@ -181,10 +162,6 @@ export async function createOrderController(
       resource: 'order',
       status: 'success',
       ip_address: extractIpAddress(req),
-      // Decision: Include order justification in log description
-      // Reason: AI analysis needs justification context for risk assessment.
-      // Alternative: Log only item count and total.
-      // Rejected: AI service would miss user-provided rationale.
       description: `Order created with ${order.items.length} item(s), total: $${order.totalAmount.toLocaleString()}, justification: ${order.justification}`,
       resourceId: order.id,
     });
@@ -220,7 +197,6 @@ export async function createOrderController(
 
 /**
  * PATCH /api/orders/:orderId/status
- * Update order status (managers and admins only)
  */
 export async function updateOrderStatusController(
   req: AuthenticatedRequest,

@@ -1,17 +1,6 @@
 /**
- * User Controller
- * 
  * Handles HTTP request/response for user management endpoints.
  * Admin-only operations.
- * No business logic - delegates to user service.
- * 
- * Decision: Controllers handle only HTTP concerns
- * Reason: Follows CURSOR_RULES.md: "No business logic inside controllers"
- *         Controllers = request/response handling only.
- * 
- * Alternative: Business logic in controllers
- * Rejected: Violates separation of concerns, harder to test,
- *           doesn't follow project architecture rules.
  */
 
 import { Response } from 'express';
@@ -28,7 +17,6 @@ import { logCrudEvent, extractIpAddress } from '../services/logging.service.js';
 
 /**
  * GET /api/users
- * Get all users (admin only)
  */
 export async function getAllUsersController(
   _req: AuthenticatedRequest,
@@ -48,7 +36,6 @@ export async function getAllUsersController(
 
 /**
  * GET /api/users/:userId
- * Get user by ID (admin only)
  */
 export async function getUserByIdController(
   req: AuthenticatedRequest,
@@ -86,7 +73,6 @@ export async function getUserByIdController(
 
 /**
  * POST /api/users
- * Create a new user (admin only)
  */
 export async function createUserController(
   req: AuthenticatedRequest,
@@ -178,7 +164,6 @@ export async function createUserController(
 
 /**
  * PATCH /api/users/:userId
- * Update user (admin only)
  */
 export async function updateUserController(
   req: AuthenticatedRequest,
@@ -274,7 +259,6 @@ export async function updateUserController(
 
 /**
  * DELETE /api/users/:userId
- * Delete user (admin only)
  */
 export async function deleteUserController(
   req: AuthenticatedRequest,

@@ -1,16 +1,5 @@
 /**
- * Order Repository
- * 
  * Database access layer for orders and order_items tables.
- * Contains only database queries, no business logic.
- * 
- * Decision: Repository pattern for database access
- * Reason: Separates data access from business logic, makes testing easier,
- *         allows swapping database implementations if needed.
- * 
- * Alternative: Direct database calls in services
- * Rejected: Violates separation of concerns, makes testing harder,
- *           doesn't follow CURSOR_RULES.md architecture.
  */
 
 import { database } from '../config/database.js';
@@ -18,7 +7,6 @@ import { OrderRow, OrderItemRow, OrderStatus } from '../types/database.js';
 
 /**
  * Get all orders
- * 
  * @returns Array of order rows
  */
 export async function getAllOrders(): Promise<OrderRow[]> {
@@ -36,7 +24,6 @@ export async function getAllOrders(): Promise<OrderRow[]> {
 
 /**
  * Get orders by user ID
- * 
  * @param userId - User UUID
  * @returns Array of order rows
  */
@@ -56,7 +43,6 @@ export async function getOrdersByUserId(userId: string): Promise<OrderRow[]> {
 
 /**
  * Get order by ID
- * 
  * @param orderId - Order UUID
  * @returns Order row or null if not found
  */
@@ -79,7 +65,6 @@ export async function getOrderById(orderId: string): Promise<OrderRow | null> {
 
 /**
  * Get order items for an order
- * 
  * @param orderId - Order UUID
  * @returns Array of order item rows
  */
@@ -98,15 +83,6 @@ export async function getOrderItems(orderId: string): Promise<OrderItemRow[]> {
 
 /**
  * Create a new order
- * 
- * Decision: Transaction-like approach with separate inserts
- * Reason: Supabase doesn't support explicit transactions in this context.
- *         We insert order first, then order items. If items fail, order remains
- *         but can be cleaned up. For Phase 4, this is acceptable.
- * 
- * Alternative: Use PostgreSQL transactions via raw SQL
- * Rejected: More complex, requires raw SQL, Supabase client handles this well enough.
- * 
  * @param order - Order data
  * @returns Created order row
  */
@@ -137,7 +113,6 @@ export async function createOrder(order: {
 
 /**
  * Create order items for an order
- * 
  * @param orderId - Order UUID
  * @param items - Array of order item data
  */
@@ -169,7 +144,6 @@ export async function createOrderItems(
 
 /**
  * Update order status
- * 
  * @param orderId - Order UUID
  * @param status - New order status
  * @returns Updated order row or null if not found

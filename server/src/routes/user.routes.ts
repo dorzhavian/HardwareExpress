@@ -1,14 +1,7 @@
 /**
- * User Routes
- * 
  * Route definitions for user management endpoints.
  * Admin-only operations.
- * 
- * Decision: Admin-only routes
- * Reason: User management is sensitive operation, should be restricted to admins only.
- * 
- * Alternative: Allow managers to manage users
- * Rejected: User management is admin-only responsibility for security and control.
+
  */
 
 import { Router } from 'express';
@@ -26,7 +19,6 @@ const router = Router();
 
 /**
  * GET /api/users
- * Get all users (admin only)
  */
 router.get(
   '/',
@@ -37,7 +29,6 @@ router.get(
 
 /**
  * GET /api/users/:userId
- * Get user by ID (admin only)
  */
 router.get(
   '/:userId',
@@ -48,7 +39,6 @@ router.get(
 
 /**
  * POST /api/users
- * Create a new user (admin only)
  */
 router.post(
   '/',
@@ -59,7 +49,6 @@ router.post(
 
 /**
  * PATCH /api/users/:userId
- * Update user (admin only)
  */
 router.patch(
   '/:userId',
@@ -70,7 +59,6 @@ router.patch(
 
 /**
  * DELETE /api/users/:userId
- * Delete user (admin only)
  */
 router.delete(
   '/:userId',

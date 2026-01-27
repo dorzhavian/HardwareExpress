@@ -3,23 +3,8 @@
  * 
  * Entry point for the Express.js API server.
  * Handles JWT verification and all business logic.
- * 
- * Decision: Separate Backend API from Authentication Server
- * Reason: 
- * - Separation of concerns: Backend API handles business logic, Auth Server handles passwords
- * - Improved security: Backend API doesn't need access to password hashes
- * - Better architecture: Follows microservices pattern for authentication
- * 
- * Alternative: Single monolithic server
- * Rejected: Assignment requirements specify separate Authentication Server and Backend API.
- *           This separation improves security by isolating password handling.
- * 
- * Architecture:
- * - Auth Server: Handles login, password verification, JWT generation (port 3001)
- * - Backend API (this): Handles JWT verification and all business logic (port 3000)
  */
 
-// IMPORTANT: Load environment variables FIRST before any other imports
 import './config/env.js';
 
 import express from 'express';

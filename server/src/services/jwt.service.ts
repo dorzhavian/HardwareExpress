@@ -1,21 +1,6 @@
 /**
- * JWT Service
- * 
  * Handles JWT token verification.
  * Uses HS256 algorithm (symmetric key).
- * 
- * Decision: Using HS256 instead of RS256
- * Reason: 
- * - Single backend architecture, no key distribution needed
- * - Simpler implementation (no key pair management)
- * - Faster verification (symmetric vs asymmetric)
- * - Sufficient for our use case
- * 
- * Alternative: RS256 (RSA with SHA-256)
- * Rejected: Adds complexity suitable for microservices with key distribution.
- *           Not needed for single-backend architecture. HS256 is simpler
- *           and sufficient for our security requirements.
- * 
  * Note: This is the Backend API - it only verifies tokens.
  *       Token generation happens in the Authentication Server.
  */
@@ -54,7 +39,6 @@ export function verifyToken(token: string): JWTPayload | null {
 
 /**
  * Extract token from Authorization header
- * Expected format: "Bearer <token>"
  * 
  * @param authHeader - Authorization header value
  * @returns Token string or null if invalid format

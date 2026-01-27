@@ -1,17 +1,3 @@
-/**
- * Catalog Service
- * 
- * Business logic for catalog/equipment operations.
- * Handles transformations from database types to API types.
- * 
- * Decision: Service layer for business logic
- * Reason: Separates business rules from controllers and repositories.
- *         Controllers handle HTTP, services handle business logic.
- * 
- * Alternative: Business logic in controllers
- * Rejected: Violates CURSOR_RULES.md requirement: "No business logic inside controllers"
- */
-
 import {
   getAllCatalogItems,
   getCatalogItemById,
@@ -23,16 +9,6 @@ import { CatalogItemRow } from '../types/database.js';
 
 /**
  * Transform database catalog item to API response
- * Converts snake_case to camelCase and price from cents to dollars
- * 
- * Decision: Transform in service layer
- * Reason: Keeps database types separate from API types.
- *         Single transformation point for catalog item data.
- * 
- * Alternative: Transform in repository or controller
- * Rejected: Repository should return raw database types.
- *           Controller should only handle HTTP concerns.
- * 
  * @param item - Database catalog item row
  * @returns API equipment response
  */
@@ -78,13 +54,6 @@ export async function getEquipmentById(
 
 /**
  * Get catalog items by category
- * 
- * Decision: Return empty array if category has no items
- * Reason: Consistent API behavior - empty array is better than error.
- * 
- * Alternative: Return error if category has no items
- * Rejected: Empty category is valid state, not an error condition.
- * 
  * @param category - Item category
  * @returns Array of equipment responses
  */

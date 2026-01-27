@@ -1,16 +1,5 @@
 /**
- * Catalog Repository
- * 
  * Database access layer for catalog_items table.
- * Contains only database queries, no business logic.
- * 
- * Decision: Repository pattern for database access
- * Reason: Separates data access from business logic, makes testing easier,
- *         allows swapping database implementations if needed.
- * 
- * Alternative: Direct database calls in services
- * Rejected: Violates separation of concerns, makes testing harder,
- *           doesn't follow CURSOR_RULES.md architecture.
  */
 
 import { database } from '../config/database.js';
@@ -18,7 +7,6 @@ import { CatalogItemRow, ItemCategory } from '../types/database.js';
 
 /**
  * Get all catalog items
- * 
  * @returns Array of catalog item rows
  */
 export async function getAllCatalogItems(): Promise<CatalogItemRow[]> {
@@ -36,7 +24,6 @@ export async function getAllCatalogItems(): Promise<CatalogItemRow[]> {
 
 /**
  * Get catalog item by ID
- * 
  * @param itemId - Item UUID
  * @returns Catalog item row or null if not found
  */
@@ -60,7 +47,6 @@ export async function getCatalogItemById(itemId: string): Promise<CatalogItemRow
 
 /**
  * Get catalog items by category
- * 
  * @param category - Item category
  * @returns Array of catalog item rows
  */
@@ -82,13 +68,6 @@ export async function getCatalogItemsByCategory(
 
 /**
  * Search catalog items by name, description, or specification
- * 
- * Decision: Using PostgreSQL ILIKE for case-insensitive search
- * Reason: Simple, efficient for basic search needs, works with Supabase.
- * 
- * Alternative: Full-text search with PostgreSQL tsvector
- * Rejected: More complex, requires additional setup, overkill for basic search.
- * 
  * @param query - Search query string
  * @returns Array of catalog item rows matching the query
  */

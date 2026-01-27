@@ -1,18 +1,5 @@
 /**
- * Authentication Service
- * 
- * Business logic for authentication operations.
  * Handles login and token generation.
- * 
- * Decision: Service layer for business logic
- * Reason: Separates business rules from controllers and repositories.
- *         Controllers handle HTTP, services handle business logic.
- * 
- * Alternative: Business logic in controllers
- * Rejected: Violates CURSOR_RULES.md requirement: "No business logic inside controllers"
- * 
- * Note: This is the Authentication Server - it only handles login and token generation.
- *       User retrieval and other operations are handled by Backend API.
  */
 
 import { findUserByEmail } from '../repositories/user.repository.js';
@@ -24,14 +11,6 @@ import { UserRow } from '../types/database.js';
 /**
  * Transform database user row to API response
  * Removes password_hash and converts field names
- * 
- * Decision: Transform in service layer
- * Reason: Keeps database types separate from API types.
- *         Single transformation point for user data.
- * 
- * Alternative: Transform in repository or controller
- * Rejected: Repository should return raw database types.
- *           Controller should only handle HTTP concerns.
  */
 function transformUserToResponse(user: UserRow): LoginResponse['user'] {
   return {
@@ -46,14 +25,6 @@ function transformUserToResponse(user: UserRow): LoginResponse['user'] {
 
 /**
  * Authenticate user with email and password
- * 
- * Decision: Return user object with token, not just token
- * Reason: Frontend needs user data immediately after login.
- *         Avoids extra API call to get user details.
- * 
- * Alternative: Return only token, require separate /me call
- * Rejected: Extra round trip, worse UX, unnecessary complexity.
- * 
  * @param email - User email
  * @param password - Plain text password
  * @returns User response with token, or null if invalid credentials

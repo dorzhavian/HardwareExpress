@@ -1,17 +1,6 @@
 /**
- * Log Controller
- * 
  * Handles HTTP request/response for log endpoints.
  * Admin-only operations.
- * No business logic - delegates to log service.
- * 
- * Decision: Controllers handle only HTTP concerns
- * Reason: Follows CURSOR_RULES.md: "No business logic inside controllers"
- *         Controllers = request/response handling only.
- * 
- * Alternative: Business logic in controllers
- * Rejected: Violates separation of concerns, harder to test,
- *           doesn't follow project architecture rules.
  */
 
 import { Response } from 'express';
@@ -52,8 +41,6 @@ function validateFilter<T extends string>(
 
 /**
  * GET /api/logs
- * Get logs (admin only) with pagination
- * Query params: page, pageSize
  */
 export async function getLogsController(
   req: AuthenticatedRequest,

@@ -45,7 +45,6 @@ export async function getLogsPage(params: {
   let query = database
     .from('logs')
     .select(
-      // הסרתי את ai_explanation כי ההסבר נמצא בתוך description
       'log_id,timestamp,user_id,user_role,action,resource,status,ip_address,description,severity,ai_classification',
       { count: 'exact' }
     )
@@ -83,7 +82,6 @@ export async function updateLogClassification(
   classification: 'NORMAL' | 'ANOMALOUS',
   explanation?: string
 ): Promise<void> {
-  // כאן התיקון הקריטי: מעדכנים את description במקום ai_explanation
   const updateData: { ai_classification: string; description?: string } = {
     ai_classification: classification,
   };

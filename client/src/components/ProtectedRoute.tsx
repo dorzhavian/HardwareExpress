@@ -1,17 +1,6 @@
 /**
- * Protected Route Component
- * 
  * Wraps routes that require authentication.
  * Redirects to login if user is not authenticated.
- * 
- * Decision: Component-based route protection
- * Reason: 
- * - Simple and explicit
- * - Works with React Router
- * - Shows loading state while checking auth
- * 
- * Alternative: Route guard middleware pattern
- * Rejected: More complex, component-based is simpler for React Router.
  */
 
 import { Navigate } from 'react-router-dom';

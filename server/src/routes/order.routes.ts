@@ -1,16 +1,5 @@
 /**
- * Order Routes
- * 
  * Route definitions for order endpoints.
- * 
- * Decision: Role-based access control
- * Reason: Different roles have different access levels:
- *         - All authenticated users can create orders
- *         - Employees can only view their own orders
- *         - Managers and admins can view all orders and update status
- * 
- * Alternative: All authenticated users see all orders
- * Rejected: Privacy and security concern - employees shouldn't see other employees' orders.
  */
 
 import { Router } from 'express';
@@ -28,7 +17,6 @@ const router = Router();
 
 /**
  * GET /api/orders
- * Get all orders (managers and admins only)
  */
 router.get(
   '/',
@@ -39,7 +27,6 @@ router.get(
 
 /**
  * GET /api/orders/user/:userId
- * Get orders for a specific user
  * Employees can access their own orders, managers/admins can access any
  */
 router.get(
@@ -51,7 +38,6 @@ router.get(
 
 /**
  * GET /api/orders/:orderId
- * Get order by ID
  * Employees can only access their own orders
  */
 router.get(
@@ -63,7 +49,6 @@ router.get(
 
 /**
  * POST /api/orders
- * Create a new order (all authenticated users)
  */
 router.post(
   '/',
@@ -74,7 +59,6 @@ router.post(
 
 /**
  * PATCH /api/orders/:orderId/status
- * Update order status (managers and admins only)
  */
 router.patch(
   '/:orderId/status',
