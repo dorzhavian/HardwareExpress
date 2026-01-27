@@ -1,7 +1,7 @@
 /**
  * JWT Service
  * 
- * Handles JWT token generation and verification.
+ * Handles JWT token verification.
  * Uses HS256 algorithm (symmetric key).
  * 
  * Decision: Using HS256 instead of RS256
@@ -15,40 +15,21 @@
  * Rejected: Adds complexity suitable for microservices with key distribution.
  *           Not needed for single-backend architecture. HS256 is simpler
  *           and sufficient for our security requirements.
+ * 
+ * Note: This is the Backend API - it only verifies tokens.
+ *       Token generation happens in the Authentication Server.
  */
 
 import jwt from 'jsonwebtoken';
 import { JWTPayload } from '../types/api.js';
 
 const JWT_SECRET_ENV = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
 
 if (!JWT_SECRET_ENV) {
   throw new Error('JWT_SECRET environment variable must be set');
 }
 
 const JWT_SECRET: string = JWT_SECRET_ENV;
-
-/**
- * Generate a JWT token with minimal payload (user_id and role only)
- * 
- * Decision: Minimal payload (user_id + role)
- * Reason: Smaller token size, faster verification, principle of least privilege.
- *         User details fetched from database when needed.
- * 
- * Alternative: Include full user object
- * Rejected: Larger token size, security risk if compromised,
- *           data becomes stale if user updated in database.
- * 
- * @param payload - JWT payload containing user_id and role
- * @returns Signed JWT token
- */
-export function generateToken(payload: JWTPayload): string {
-  return jwt.sign(payload as object, JWT_SECRET, {
-    expiresIn: JWT_EXPIRES_IN,
-    algorithm: 'HS256',
-  } as jwt.SignOptions);
-}
 
 /**
  * Verify and decode a JWT token
@@ -64,6 +45,9 @@ export function verifyToken(token: string): JWTPayload | null {
     return decoded;
   } catch (error) {
     // Token is invalid, expired, or malformed
+    if (error instanceof Error) {
+      console.error('JWT verification error:', error.message);
+    }
     return null;
   }
 }

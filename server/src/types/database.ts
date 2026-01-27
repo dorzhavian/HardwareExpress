@@ -134,7 +134,6 @@ export interface LogRow {
   description: string | null; // text (nullable)
   severity: LogSeverity; // log_severity_enum
   ai_classification: AiClassification; // VARCHAR(20), defaults to 'PENDING'
-  ai_explanation: string | null; // TEXT (nullable)
 }
 
 

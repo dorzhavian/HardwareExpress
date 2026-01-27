@@ -57,6 +57,11 @@ export function authenticate(
 
   const payload = verifyToken(token);
   if (!payload) {
+    console.error('JWT verification failed:', {
+      tokenLength: token.length,
+      tokenPrefix: token.substring(0, 20),
+      hasJwtSecret: !!process.env.JWT_SECRET,
+    });
     res.status(401).json({
       error: 'Unauthorized',
       message: 'Invalid or expired token',

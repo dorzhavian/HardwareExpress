@@ -20,13 +20,22 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Check if user is admin or manager (should see full dashboard)
+  const isAdminOrManager = hasRole(['admin', 'procurement_manager']);
+
   useEffect(() => {
     const fetchData = async () => {
+      // Only fetch dashboard data for admin/manager
+      if (!isAdminOrManager) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         setIsLoading(true);
         const [statsData, ordersData] = await Promise.all([
@@ -46,7 +55,7 @@ export default function Dashboard() {
     };
 
     fetchData();
-  }, []);
+  }, [isAdminOrManager]);
 
   const budgetPercentage = stats 
     ? Math.round((stats.totalSpent / stats.monthlyBudget) * 100) 
@@ -59,12 +68,15 @@ export default function Dashboard() {
         <div className="rounded-xl gradient-hero p-6 text-primary-foreground">
           <h2 className="text-2xl font-bold">Welcome back, {user?.name?.split(' ')[0]}!</h2>
           <p className="mt-1 text-primary-foreground/80">
-            Here's an overview of your equipment ordering activity.
+            {isAdminOrManager 
+              ? "Here's an overview of your equipment ordering activity."
+              : "Welcome to your equipment ordering dashboard. Use the quick actions below to get started."}
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* Stats Grid - Only for Admin/Manager */}
+        {isAdminOrManager && (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Orders"
             value={stats?.totalOrders ?? '-'}
@@ -89,9 +101,12 @@ export default function Dashboard() {
             icon={<DollarSign className="h-6 w-6" />}
             description="This fiscal year"
           />
-        </div>
+          </div>
+        )}
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        {/* Budget and Recent Orders - Only for Admin/Manager */}
+        {isAdminOrManager && (
+          <div className="grid gap-6 lg:grid-cols-2">
           {/* Budget Progress */}
           <Card className="shadow-card">
             <CardHeader>
@@ -172,7 +187,8 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
-        </div>
+          </div>
+        )}
 
         {/* Quick Actions */}
         <Card className="shadow-card">

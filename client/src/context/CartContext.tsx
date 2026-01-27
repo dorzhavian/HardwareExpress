@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { Equipment, OrderItem } from '@/types';
+import { useAuth } from './AuthContext';
 
 interface CartContextType {
   items: OrderItem[];
@@ -15,6 +16,23 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<OrderItem[]>([]);
+  const { user } = useAuth();
+
+  /**
+   * Clear cart when user logs out or changes
+   * 
+   * Decision: Clear cart on user change
+   * Reason: Prevents cart data from persisting across user sessions.
+   *         Each user should have their own cart state.
+   * 
+   * Alternative: Persist cart across users
+   * Rejected: Security and privacy concern - users shouldn't see other users' cart items.
+   */
+  useEffect(() => {
+    if (!user) {
+      setItems([]);
+    }
+  }, [user]);
 
   const addItem = useCallback((equipment: Equipment, quantity: number = 1) => {
     setItems(prev => {

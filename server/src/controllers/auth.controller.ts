@@ -13,76 +13,10 @@
  *           doesn't follow project architecture rules.
  */
 
-import { Request, Response } from 'express';
-import { login, getCurrentUser } from '../services/auth.service.js';
-import { authenticate, AuthenticatedRequest } from '../middlewares/auth.middleware.js';
-import { LoginRequest } from '../types/api.js';
+import { Response } from 'express';
+import { getCurrentUser } from '../services/auth.service.js';
+import { AuthenticatedRequest } from '../middlewares/auth.middleware.js';
 import { logAuthEvent, extractIpAddress } from '../services/logging.service.js';
-
-/**
- * POST /api/auth/login
- * Authenticate user with email and password
- * 
- * Decision: Return 401 for invalid credentials (not 404)
- * Reason: Security best practice - don't reveal if email exists.
- *         Same response for invalid email or password.
- * 
- * Alternative: Different responses for "email not found" vs "wrong password"
- * Rejected: Security vulnerability - reveals which emails exist in system.
- */
-export async function loginController(req: Request, res: Response): Promise<void> {
-  try {
-    const { email, password }: LoginRequest = req.body;
-
-    // Validation
-    if (!email || !password) {
-      res.status(400).json({
-        error: 'Bad Request',
-        message: 'Email and password are required',
-      });
-      return;
-    }
-
-    // Authenticate
-    const result = await login(email, password);
-    if (!result) {
-      // Log failed login attempt
-      await logAuthEvent({
-        user_id: null,
-        user_role: null,
-        action: 'login',
-        status: 'failure',
-        ip_address: extractIpAddress(req),
-        description: `Failed login attempt for email: ${email}`,
-      });
-
-      res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Invalid email or password',
-      });
-      return;
-    }
-
-    // Log successful login
-    await logAuthEvent({
-      user_id: result.user.id,
-      user_role: result.user.role,
-      action: 'login',
-      status: 'success',
-      ip_address: extractIpAddress(req),
-      description: `Successful login for user: ${result.user.email}`,
-    });
-
-    // Success
-    res.json(result);
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'An error occurred during login',
-    });
-  }
-}
 
 /**
  * POST /api/auth/logout
@@ -95,7 +29,7 @@ export async function loginController(req: Request, res: Response): Promise<void
  * 
  * Alternative: Token blacklist/revocation
  * Rejected: Requires additional storage (Redis/DB), adds complexity.
- *           Not needed for Phase 2. Can be added later if required.
+ *           Can be added later if required.
  */
 export async function logoutController(
   req: AuthenticatedRequest,

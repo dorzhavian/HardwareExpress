@@ -22,11 +22,19 @@ npm install
 
 ### 2. Create Environment File
 
-Create a `.env` file in the `client/` directory: **(not necessery - DEAFULT)**
+Create a `.env` file in the `client/` directory (optional - defaults provided):
 
 ```env
 # ===========================================
 # Backend API Configuration
 # ===========================================
 VITE_API_URL=http://localhost:3000/api
+
+# ===========================================
+# Authentication Server Configuration
+# ===========================================
+VITE_AUTH_URL=http://localhost:3001
 ```
+
+> ⚠️ **Important**: The `VITE_AUTH_URL` points to the Authentication Server (port 3001) for login.
+> All other API calls go to Backend API (port 3000).

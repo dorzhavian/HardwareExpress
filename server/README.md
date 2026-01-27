@@ -43,7 +43,6 @@ NODE_ENV=development
 # JWT Configuration
 # ===========================================
 JWT_SECRET=your_jwt_secret_key_here
-JWT_EXPIRES_IN=1h
 
 # ===========================================
 # AI Service Configuration (Node -> Python)
@@ -58,6 +57,9 @@ AI_SERVICE_HOST=127.0.0.1
 AI_SERVICE_PORT=8001
 ```
 
+**Important**: Use the same `JWT_SECRET` as in `server/auth-server/.env`.
+
+
 ### Getting Supabase Credentials
 
 1. Go to your [Supabase Dashboard](https://app.supabase.com)
@@ -67,7 +69,7 @@ AI_SERVICE_PORT=8001
    - **Project URL** → `SUPABASE_URL`
    - **service_role key** → `SUPABASE_SERVICE_ROLE_KEY`
 
-> ⚠️ **Important**: Use the `service_role` key, NOT the `anon` key. The service role key bypasses Row Level Security (RLS) which is required for backend operations.
+**Important**: Use the `service_role` key, NOT the `anon` key. The service role key bypasses Row Level Security (RLS) which is required for backend operations.
 
 ### JWT Secret Generation
 

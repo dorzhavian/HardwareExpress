@@ -1,14 +1,11 @@
 {
-  "name": "hardwareexpress-backend",
+  "name": "hardwareexpress-auth-server",
   "version": "1.0.0",
-  "description": "HardwareExpress Backend API Server",
+  "description": "HardwareExpress Authentication Server - Dedicated server for user authentication and JWT token generation",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "ai": "cd ai_service && .\\.venv\\Scripts\\python.exe -m uvicorn log_ai_service:app --host 127.0.0.1 --port 8001 --reload",
-    "auth": "cd auth-server && npm run dev",    
-    "dev:all": "concurrently \"npm run dev\" \"npm run ai\" \"npm run auth\"",
     "build": "tsc",
     "start": "node dist/index.js",
     "type-check": "tsc --noEmit"
@@ -27,7 +24,6 @@
     "@types/express": "^4.17.25",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^22.16.5",
-    "concurrently": "^9.2.1",
     "tsx": "^4.7.0",
     "typescript": "^5.8.3"
   }

@@ -14,7 +14,7 @@
  * Rejected: Code duplication, harder to maintain, violates separation of concerns.
  */
 
-import { apiGet, apiPost, apiPatch, apiDelete, setAuthToken, removeAuthToken } from '@/lib/api-client';
+import { apiGet, apiPost, apiPatch, apiDelete, setAuthToken, removeAuthToken, AUTH_BASE_URL, ApiError } from '@/lib/api-client';
 import { User, Equipment, Order, DashboardStats, OrderStatus, PaginatedLogs, LogEntry } from '@/types';
 
 /**
@@ -92,31 +92,89 @@ export const authApi = {
    * Login with email and password
    * Returns user data and stores JWT token
    * 
-   * Decision: Store token in API service
-   * Reason: Centralized token management, consistent across app.
+   * Decision: Use Authentication Server for login
+   * Reason: Authentication Server handles password verification and JWT generation.
+   *         Backend API only verifies tokens, doesn't handle login.
    * 
-   * Alternative: Store token in AuthContext
-   * Rejected: Token storage logic should be in API layer, not context.
+   * Alternative: Use Backend API for login
+   * Rejected: Assignment requirements specify separate Authentication Server.
+   *           This separation improves security by isolating password handling.
+   * 
+   * Note: Login endpoint is on Authentication Server (port 3001),
+   *       while all other endpoints are on Backend API (port 3000).
    */
   login: async (email: string, password: string): Promise<{ user: User; token: string }> => {
-    const response = await apiPost<{ user: User; token: string }>('/auth/login', {
-      email,
-      password,
-    });
+    const url = `${AUTH_BASE_URL}/login`;
     
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+    } catch (error) {
+      // Network error (e.g., server unreachable)
+      throw new ApiError(
+        'Network error: Unable to connect to authentication server',
+        0,
+        { networkError: true }
+      );
+    }
+
+    // Parse response
+    let data: any;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        data = await response.json();
+      } catch (error) {
+        throw new ApiError(
+          'Invalid JSON response from authentication server',
+          response.status,
+          { parseError: true }
+        );
+      }
+    } else {
+      const text = await response.text();
+      throw new ApiError(
+        text || 'Unexpected response format',
+        response.status,
+        { text }
+      );
+    }
+
+    if (!response.ok) {
+      throw new ApiError(
+        data.message || data.error || 'Login failed',
+        response.status,
+        data
+      );
+    }
+
     // Store token
-    setAuthToken(response.token);
+    setAuthToken(data.token);
     
-    return response;
+    return data;
   },
 
   /**
    * Logout
    * Removes token from storage
+   * 
+   * Decision: Always call logout endpoint before removing token
+   * Reason: Ensures logout event is logged on server side.
+   *         Even if API call fails, we still remove token client-side.
    */
   logout: async (): Promise<void> => {
     try {
+      // Call logout endpoint to log the event
       await apiPost('/auth/logout');
+    } catch (error) {
+      // Log error but don't throw - we still want to remove token
+      console.error('Logout API call failed:', error);
     } finally {
       // Always remove token, even if API call fails
       removeAuthToken();

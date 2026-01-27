@@ -1,7 +1,7 @@
 /**
  * Password Service
  * 
- * Handles password hashing and verification using bcrypt.
+ * Handles password hashing using bcrypt.
  * 
  * Decision: Using bcrypt instead of PBKDF2
  * Reason: 
@@ -15,6 +15,9 @@
  * Rejected: More complex API, requires manual salt management,
  *           similar security but less convenient. bcrypt's adaptive
  *           cost factor makes it easier to increase security over time.
+ * 
+ * Note: This is the Backend API - it only hashes passwords for user creation/updates.
+ *       Password verification happens in the Authentication Server.
  */
 
 import bcrypt from 'bcrypt';
@@ -38,25 +41,14 @@ const SALT_ROUNDS = 10;
 /**
  * Hash a plain text password
  * 
+ * Used for creating new users and updating passwords.
+ * Password verification happens in Authentication Server.
+ * 
  * @param plainPassword - Plain text password to hash
  * @returns Hashed password (includes salt)
  */
 export async function hashPassword(plainPassword: string): Promise<string> {
   return bcrypt.hash(plainPassword, SALT_ROUNDS);
-}
-
-/**
- * Verify a plain text password against a hash
- * 
- * @param plainPassword - Plain text password to verify
- * @param hash - Hashed password from database
- * @returns true if password matches, false otherwise
- */
-export async function verifyPassword(
-  plainPassword: string,
-  hash: string
-): Promise<boolean> {
-  return bcrypt.compare(plainPassword, hash);
 }
 
 

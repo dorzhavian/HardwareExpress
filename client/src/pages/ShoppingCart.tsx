@@ -65,10 +65,12 @@ export default function ShoppingCart() {
 
       clearCart();
       navigate('/my-orders');
-    } catch {
+    } catch (error: any) {
+      console.error('Order creation error:', error);
+      const errorMessage = error?.message || error?.data?.message || 'Failed to submit order. Please try again.';
       toast({
         title: "Error",
-        description: "Failed to submit order. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

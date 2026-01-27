@@ -107,36 +107,10 @@ Foreign Keys:
 | description | text | YES | |
 | severity | log_severity_enum | NO | |
 | ai_classification | varchar | NO | PENDING |
-| ai_explanation | text | YES | |
+
 
 Primary Key: log_id
 
----
-
-## 🤖 logs_ai
-תוצאות ניתוח AI לכל לוג (anomaly detection וכו׳).  
-הטבלה מקושרת ל־`logs` באמצעות `log_id`, ומאפשרת לשמור תוצאות מודל (score/label), סיכום, ו־raw output (JSON) מבלי “ללכלך” את הלוג המקורי.
-
-| Column | Type | Nullable | Default |
-|------|------|----------|---------|
-| ai_id | uuid | NO | gen_random_uuid() |
-| log_id | uuid | NO | |
-| model_name | text | NO | |
-| score | float4 | NO | |
-| threshold | float4 | NO | |
-| is_suspicious | boolean | NO | |
-| raw | jsonb | YES | |
-| created_at | timestamptz | NO | now() |
-
-Primary Key: ai_id  
-Foreign Key: log_id → logs(log_id)  
-Indexes: logs_ai_pkey
-
-**Recommended indexes (optional but useful):**
-- UNIQUE(log_id, model_name) — למניעת ניתוח כפול של אותו לוג עם אותו מודל.
-- (is_suspicious, created_at DESC) — שליפה מהירה של התרעות/אירועים חשודים האחרונים.
-
----
 
 ## 🔐 ENUM Types
 

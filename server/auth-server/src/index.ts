@@ -1,12 +1,12 @@
 /**
- * HardwareExpress Backend API Server
+ * HardwareExpress Authentication Server
  * 
- * Entry point for the Express.js API server.
- * Handles JWT verification and all business logic.
+ * Dedicated authentication server that handles user login and JWT token generation.
+ * Separated from Backend API for improved security and architecture.
  * 
- * Decision: Separate Backend API from Authentication Server
+ * Decision: Separate Authentication Server
  * Reason: 
- * - Separation of concerns: Backend API handles business logic, Auth Server handles passwords
+ * - Separation of concerns: Auth Server handles passwords, Backend API handles business logic
  * - Improved security: Backend API doesn't need access to password hashes
  * - Better architecture: Follows microservices pattern for authentication
  * 
@@ -15,8 +15,11 @@
  *           This separation improves security by isolating password handling.
  * 
  * Architecture:
- * - Auth Server: Handles login, password verification, JWT generation (port 3001)
- * - Backend API (this): Handles JWT verification and all business logic (port 3000)
+ * - Auth Server (this): Handles login, password verification, JWT generation (port 3001)
+ * - Backend API: Handles JWT verification and all business logic (port 3000)
+ * 
+ * Note: Auth Server uses shared logging service from Backend API (../../src/services/logging.service.js)
+ *       to ensure all logs go through AI analysis.
  */
 
 // IMPORTANT: Load environment variables FIRST before any other imports
@@ -26,14 +29,9 @@ import express from 'express';
 import cors from 'cors';
 import { database } from './config/database.js';
 import authRoutes from './routes/auth.routes.js';
-import catalogRoutes from './routes/catalog.routes.js';
-import orderRoutes from './routes/order.routes.js';
-import userRoutes from './routes/user.routes.js';
-import dashboardRoutes from './routes/dashboard.routes.js';
-import logRoutes from './routes/log.routes.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
@@ -43,8 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 // Health check endpoint
 app.get('/health', async (_req, res) => {
   try {
-    // Test database connection by querying a simple table
-    // Using users table as it's guaranteed to exist per schema
+    // Test database connection by querying users table
     const { error } = await database
       .from('users')
       .select('user_id')
@@ -61,6 +58,7 @@ app.get('/health', async (_req, res) => {
     return res.json({
       status: 'healthy',
       database: 'connected',
+      service: 'authentication-server',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
@@ -72,23 +70,8 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-// API routes
-app.get('/api', (_req, res) => {
-  res.json({
-    message: 'HardwareExpress API',
-    version: '1.0.0',
-    service: 'backend-api',
-    status: 'JWT verification and business logic',
-  });
-});
-
-// Domain API routes
-app.use('/api/auth', authRoutes);
-app.use('/api/equipment', catalogRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/logs', logRoutes);
+// Authentication routes
+app.use('/', authRoutes);
 
 // Error handling middleware
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
@@ -109,8 +92,8 @@ app.use((req: express.Request, res: express.Response) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(` Server running on http://localhost:${PORT}`);
-  console.log(` Health check: http://localhost:${PORT}/health`);
-  console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Authentication Server running on http://localhost:${PORT}`);
+  console.log(`   Health check: http://localhost:${PORT}/health`);
+  console.log(`   Login endpoint: http://localhost:${PORT}/login`);
+  console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
 });
-
