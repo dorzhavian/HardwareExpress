@@ -3,7 +3,7 @@
  */
 
 import { Response } from 'express';
-import { getCurrentUser } from '../services/auth.service.js';
+import { getCurrentUser } from '../services/session.service.js';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware.js';
 import { logAuthEvent, extractIpAddress } from '../services/logging.service.js';
 

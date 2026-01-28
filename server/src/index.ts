@@ -10,7 +10,7 @@ import './config/env.js';
 import express from 'express';
 import cors from 'cors';
 import { database } from './config/database.js';
-import authRoutes from './routes/auth.routes.js';
+import authRoutes from './routes/session.routes.js';
 import catalogRoutes from './routes/catalog.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import userRoutes from './routes/user.routes.js';

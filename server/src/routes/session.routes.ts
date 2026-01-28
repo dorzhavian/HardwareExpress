@@ -6,7 +6,7 @@ import { Router } from 'express';
 import {
   logoutController,
   getMeController,
-} from '../controllers/auth.controller.js';
+} from '../controllers/session.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 
 const router = Router();
